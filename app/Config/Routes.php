@@ -9,10 +9,11 @@ use CodeIgniter\Router\RouteCollection;
 $routes->get('/', 'Home::index');
 
 // Authentication Routes
-$routes->get('auth/login', 'Auth::login');
+$routes->get('/login', 'Auth::login');
 $routes->post('auth/processLogin', 'Auth::processLogin');
 $routes->get('auth/register', 'Auth::register');
 $routes->post('auth/processRegister', 'Auth::processRegister');
+$routes->get('auth/login', 'Auth::login');
 $routes->get('/logout', 'Auth::logout');
 
 // Routes untuk Pertanyaan

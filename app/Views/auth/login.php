@@ -57,11 +57,13 @@
         .btn-link-custom:hover {
             text-decoration: underline;
         }
-        .social-login .btn {
+        /* CSS untuk .social-login .btn dan .or-separator dapat dihapus jika tidak ada elemen lain yang menggunakannya */
+        /* Namun, untuk saat ini kita biarkan jika ada kemungkinan penggunaan lain atau untuk kesederhanaan */
+        /* .social-login .btn {
             width: 100%;
             margin-bottom: 10px;
-        }
-        .or-separator {
+        } */
+        /* .or-separator {
             display: flex;
             align-items: center;
             text-align: center;
@@ -79,16 +81,15 @@
         }
         .or-separator:not(:empty)::after {
             margin-left: .25em;
-        }
+        } */
         .footer-text {
             font-size: 0.85rem;
             color: #777;
             text-align: center;
             margin-top: 20px;
         }
-        /* Untuk pesan error */
         .invalid-feedback {
-            display: block; /* Pastikan pesan error selalu terlihat jika ada */
+            display: block;
         }
     </style>
 </head>
@@ -110,7 +111,8 @@
         <?php endif; ?>
 
         <form id="loginForm" action="<?= site_url('auth/processLogin') ?>" method="post">
-            <?= csrf_field() ?> <div class="mb-3">
+            <?= csrf_field() ?>
+            <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
                 <input type="email" class="form-control" id="email" name="email" value="<?= old('email') ?>" required>
                 <?php if (session()->getFlashdata('errors') && isset(session()->getFlashdata('errors')['email'])): ?>
@@ -139,17 +141,6 @@
             </div>
             <button type="submit" class="btn btn-login w-100">Masuk</button>
         </form>
-
-        <div class="or-separator">atau</div>
-
-        <div class="social-login">
-            <button type="button" class="btn btn-outline-primary mb-2 w-100">
-                <img src="https://img.icons8.com/color/16/000000/google-logo.png" alt="Google" class="me-2"/> Lanjutkan dengan Google
-            </button>
-            <button type="button" class="btn btn-outline-primary w-100">
-                <img src="https://img.icons8.com/color/16/000000/facebook-new.png" alt="Facebook" class="me-2"/> Lanjutkan dengan Facebook
-            </button>
-        </div>
 
         <p class="mt-4 text-center">
             Belum punya akun? <a href="<?= site_url('auth/register') ?>" class="btn-link-custom fw-bold">Daftar</a>
@@ -184,7 +175,6 @@
                 email.classList.add('is-invalid');
                 isValid = false;
             } else {
-                // Regex sederhana untuk format email
                 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (!emailPattern.test(email.value)) {
                     emailError.textContent = 'Format email tidak valid.';
