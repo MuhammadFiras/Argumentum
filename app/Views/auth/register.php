@@ -94,7 +94,7 @@
             </div>
 
             <div class="mb-3">
-                <label for="email" class="form-label">Surel</label>
+                <label for="email" class="form-label">Email</label>
                 <input type="email" class="form-control" id="email" name="email" value="<?= old('email') ?>" required>
                 <?php if (session()->getFlashdata('errors') && isset(session()->getFlashdata('errors')['email'])): ?>
                     <div class="invalid-feedback">
@@ -174,14 +174,14 @@
 
             // Validasi Email
             if (email.value.trim() === '') {
-                emailError.textContent = 'Surel tidak boleh kosong.';
+                emailError.textContent = 'Email tidak boleh kosong.';
                 emailError.style.display = 'block';
                 email.classList.add('is-invalid');
                 isValid = false;
             } else {
                 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (!emailPattern.test(email.value)) {
-                    emailError.textContent = 'Format surel tidak valid.';
+                    emailError.textContent = 'Format email tidak valid.';
                     emailError.style.display = 'block';
                     email.classList.add('is-invalid');
                     isValid = false;

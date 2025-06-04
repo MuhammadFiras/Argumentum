@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <?= csrf_meta() ?>
     <title><?= esc($title ?? 'Detail Pertanyaan') ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -15,13 +16,38 @@
         .user-info { font-size: 0.9em; color: #6c757d; }
         .btn-submit-answer { background-color: #B92B27; border-color: #B92B27; color:white; }
         .btn-submit-answer:hover { background-color: #a32622; border-color: #a32622; }
+
+        /* CSS untuk Bintang Rating */
+        .star-rating .star {
+            font-size: 1.5em; /* Ukuran bintang */
+            color: #ccc; /* Warna bintang default */
+            cursor: pointer;
+            transition: color 0.2s;
+            margin-right: 2px; /* Jarak antar bintang */
+        }
+        .star-rating .star:hover,
+        .star-rating .star.rated {
+            color: #ffc107; /* Warna bintang saat di-hover atau sudah di-rate (kuning) */
+        }
+        .rating-summary-text {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+        .rating-feedback-message { /* Untuk rating-message-* */
+            font-size: 0.8em;
+            min-height: 1.2em; /* Agar layout tidak bergeser saat pesan muncul/hilang */
+            margin-top: 4px;
+        }
+        .text-info { color: #0dcaf0 !important; }
+        .text-success { color: #198754 !important; }
+        .text-danger { color: #dc3545 !important; }
     </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
         <div class="container">
             <a class="navbar-brand" href="<?= site_url('/') ?>">Argumentum</a>
-             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
@@ -48,7 +74,7 @@
                         </div>
                     <?php else: ?>
                         <a href="<?= site_url('/login') ?>" class="btn btn-outline-primary me-2">Masuk</a>
-                    <?php endif; ?>
+                        <a href="<?= site_url('/register') ?>" class="btn btn-primary">Daftar</a> <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -77,7 +103,7 @@
                 </div>
                 <hr>
                 <div class="question-content">
-                    <?= nl2br(esc($question['content'])) // nl2br untuk mengubah newline jadi <br> ?>
+                    <?= nl2br(esc($question['content'])) ?>
                 </div>
                 <?php if (session()->get('isLoggedIn') && session()->get('user_id') == $question['id_user']): ?>
                     <div class="mt-3">
@@ -96,13 +122,10 @@
                     <form action="<?= site_url('answer/submit/' . $question['id_question']) ?>" method="post">
                         <?= csrf_field() ?>
                         <div class="mb-3">
-                            <textarea class="form-control" name="answer_content" rows="4" placeholder="Tulis jawabanmu di sini..." required></textarea>
-                             <?php
-                                $validation = session()->getFlashdata('validation_answer');
-                                if ($validation && $validation->hasError('answer_content')):
-                            ?>
+                            <textarea class="form-control <?= ($validation_answer->hasError('answer_content')) ? 'is-invalid' : '' ?>" name="answer_content" rows="4" placeholder="Tulis jawabanmu di sini..." required><?= old('answer_content') ?></textarea>
+                            <?php if ($validation_answer->hasError('answer_content')): ?>
                                 <div class="invalid-feedback d-block">
-                                    <?= $validation->getError('answer_content') ?>
+                                    <?= $validation_answer->getError('answer_content') ?>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -111,19 +134,48 @@
                 </div>
             </div>
             <?php else: ?>
-                <p><a href="<?= site_url('login?redirect=' . current_url()) ?>">Masuk</a> untuk menjawab pertanyaan ini.</p>
+                <p><a href="<?= site_url('login?redirect=' . urlencode(current_url())) ?>">Masuk</a> untuk menjawab pertanyaan ini.</p>
             <?php endif; ?>
 
 
             <?php if (!empty($answers)): ?>
                 <?php foreach ($answers as $answer): ?>
-                    <div class="answer-card">
+                    <div class="answer-card" id="answer-<?= esc($answer['id_answer']) ?>">
                         <div class="user-info mb-2">
                              <img src="<?= base_url('assets/images/profiles/' . esc($answer['user_photo'] ?? 'default.jpg')) ?>" alt="<?= esc($answer['user_nama']) ?>" width="25" height="25" class="rounded-circle me-1">
                             <?= esc($answer['user_nama']) ?> · <?= CodeIgniter\I18n\Time::parse($answer['created_at'])->humanize() ?>
                         </div>
                         <div class="answer-content">
                             <?= nl2br(esc($answer['content'])) ?>
+                        </div>
+
+                        <div class="mt-3">
+                            <span class="rating-summary-text">
+                                Rating: 
+                                <strong id="avg-rating-<?= esc($answer['id_answer']) ?>">
+                                    <?= number_format($answer['rating_stats']['average'], 1) ?>
+                                </strong> bintang
+                                (<span id="count-rating-<?= esc($answer['id_answer']) ?>"><?= esc($answer['rating_stats']['count']) ?></span> suara)
+                            </span>
+
+                            <?php if (session()->get('isLoggedIn') && session()->get('user_id') != $answer['id_user']): ?>
+                                <div class="star-rating mt-1" data-answer-id="<?= esc($answer['id_answer']) ?>">
+                                    <small>Beri rating:</small>
+                                    <?php $userGivenRating = $answer['user_given_rating']; ?>
+                                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                                        <span class="star <?= ($i <= $userGivenRating) ? 'rated' : '' ?>" data-value="<?= $i ?>">&#9733;</span>
+                                    <?php endfor; ?>
+                                </div>
+                                <div id="rating-feedback-message-<?= esc($answer['id_answer']) ?>" class="rating-feedback-message"></div>
+                            <?php elseif(session()->get('isLoggedIn') && session()->get('user_id') == $answer['id_user']): ?>
+                                <div class="mt-1">
+                                     <small class="text-muted rating-summary-text">Anda tidak bisa memberi rating pada jawaban sendiri.</small>
+                                </div>
+                            <?php elseif(!session()->get('isLoggedIn')): ?>
+                                 <div class="mt-1">
+                                     <small class="rating-summary-text"><a href="<?= site_url('login?redirect=' . urlencode(current_url())) ?>">Masuk</a> untuk memberi rating.</small>
+                                </div>
+                            <?php endif; ?>
                         </div>
                          </div>
                 <?php endforeach; ?>
@@ -143,5 +195,81 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const csrfTokenName = '<?= csrf_token() ?>';
+        let csrfTokenValue = '<?= csrf_hash() ?>'; // Initial CSRF Hash
+
+        document.querySelectorAll('.star-rating .star').forEach(star => {
+            star.addEventListener('click', function () {
+                const ratingValue = this.dataset.value;
+                const parent = this.closest('.star-rating');
+                const answerId = parent.dataset.answerId;
+                const feedbackDiv = document.getElementById(`rating-feedback-message-${answerId}`);
+
+                // Optimistic UI update
+                parent.querySelectorAll('.star').forEach(s => {
+                    s.classList.remove('rated');
+                    if (parseInt(s.dataset.value) <= ratingValue) {
+                        s.classList.add('rated');
+                    }
+                });
+                feedbackDiv.textContent = 'Menyimpan rating...';
+                feedbackDiv.className = 'rating-feedback-message text-info';
+
+                const formData = new URLSearchParams();
+                formData.append('rating', ratingValue);
+                formData.append(csrfTokenName, csrfTokenValue);
+
+                fetch(`<?= site_url('answer/rate/') ?>${answerId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'
+                        // CI4 CSRF protection for AJAX often relies on sending token in body
+                        // or using X-CSRF-TOKEN header if configured globally
+                    },
+                    body: formData.toString()
+                })
+                .then(response => {
+                    // Update CSRF token from response header if provided (best practice for auto-renewing tokens)
+                    const newCsrfToken = response.headers.get('X-CSRF-TOKEN');
+                    if (newCsrfToken) {
+                        csrfTokenValue = newCsrfToken;
+                        // Update any global CSRF input fields if you have them
+                        // document.querySelector(`input[name="${csrfTokenName}"]`).value = newCsrfToken;
+                    }
+                    if (!response.ok) {
+                        return response.json().then(errData => Promise.reject(errData));
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        feedbackDiv.textContent = data.message;
+                        feedbackDiv.className = 'rating-feedback-message text-success';
+                        document.getElementById(`avg-rating-${answerId}`).textContent = data.average_rating;
+                        document.getElementById(`count-rating-${answerId}`).textContent = data.rating_count;
+                    } else {
+                        feedbackDiv.textContent = data.message || 'Gagal memberi rating.';
+                        feedbackDiv.className = 'rating-feedback-message text-danger';
+                        // Optionally revert optimistic UI update if needed
+                    }
+                })
+                .catch(error => {
+                    console.error('Error details:', error);
+                    let errorMessage = 'Terjadi kesalahan.';
+                    if (error && error.message) {
+                        errorMessage = error.message;
+                    } else if (typeof error === 'string') {
+                        errorMessage = error;
+                    }
+                    feedbackDiv.textContent = errorMessage;
+                    feedbackDiv.className = 'rating-feedback-message text-danger';
+                });
+            });
+        });
+    });
+    </script>
 </body>
 </html>

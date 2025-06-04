@@ -3,18 +3,21 @@
 namespace App\Controllers;
 
 use App\Models\QuestionModel;
-use App\Models\AnswerModel; 
+use App\Models\AnswerModel;
+use App\Models\AnswerRatingModel; // Pastikan use statement ini ada
 
 class Question extends BaseController
 {
     protected $questionModel;
-    protected $answerModel; // Untuk nanti
-    protected $helpers = ['form', 'url', 'text']; // Tambahkan helper text untuk slugify
+    protected $answerModel;
+    protected $answerRatingModel; // Property untuk model rating
+    protected $helpers = ['form', 'url', 'text', 'date'];
 
     public function __construct()
     {
         $this->questionModel = new QuestionModel();
-        $this->answerModel = new AnswerModel(); // Untuk nanti
+        $this->answerModel = new AnswerModel();
+        $this->answerRatingModel = new AnswerRatingModel(); // Instansiasi model rating
     }
 
     // Menampilkan form untuk bertanya
@@ -22,7 +25,7 @@ class Question extends BaseController
     {
         $data = [
             'title' => 'Tanya Pertanyaan Baru',
-            'validation' => \Config\Services::validation() // Kirim service validasi ke view
+            'validation' => \Config\Services::validation()
         ];
         return view('questions/ask_question', $data);
     }
@@ -49,24 +52,16 @@ class Question extends BaseController
         ];
 
         if (!$this->validate($rules)) {
-            // Kembali ke form dengan error dan input lama
-            // Cara pertama: return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
-            // Cara kedua (agar service validation bisa diakses di view dengan lebih mudah):
             return redirect()->to('/ask')->withInput()->with('validation', $this->validator);
         }
 
-        // Buat slug dari judul
-        $slug = url_title($this->request->getPost('title'), '-', true); // Dari helper 'text'
-        // Pastikan slug unik (bisa ditambahkan loop dengan suffix angka jika sudah ada)
-        // Untuk sementara, kita asumsikan unik atau bisa dihandle oleh constraint UNIQUE di DB
-        // Implementasi cek slug unik yang lebih baik:
+        $slug = url_title($this->request->getPost('title'), '-', true);
         $originalSlug = $slug;
         $counter = 1;
         while ($this->questionModel->findBySlug($slug)) {
             $slug = $originalSlug . '-' . $counter;
             $counter++;
         }
-
 
         $data = [
             'id_user' => session()->get('user_id'),
@@ -92,14 +87,36 @@ class Question extends BaseController
         $question = $this->questionModel->getQuestionsWithUser($slug);
 
         if (!$question) {
-            // throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
             return redirect()->to('/')->with('error', 'Pertanyaan tidak ditemukan atau slug tidak valid.');
+        }
+
+        $answersFromDB = $this->answerModel->getAnswersForQuestion($question['id_question']);
+        $processedAnswers = [];
+
+        $loggedInUserId = session()->get('isLoggedIn') ? session()->get('user_id') : null;
+
+        foreach ($answersFromDB as $answer) {
+            // 1. Dapatkan statistik rating (rata-rata dan jumlah)
+            $answer['rating_stats'] = $this->answerRatingModel->getAverageRating($answer['id_answer']);
+
+            // 2. Dapatkan rating yang diberikan oleh user yang sedang login (jika ada)
+            $userGivenRatingValue = 0;
+            if ($loggedInUserId) {
+                $userSpecificRating = $this->answerRatingModel->getRatingByUser($answer['id_answer'], $loggedInUserId);
+                if ($userSpecificRating) {
+                    $userGivenRatingValue = (int)$userSpecificRating['rating'];
+                }
+            }
+            $answer['user_given_rating'] = $userGivenRatingValue;
+
+            $processedAnswers[] = $answer;
         }
 
         $data = [
             'title' => esc($question['title']),
             'question' => $question,
-            'answers' => $this->answerModel->getAnswersForQuestion($question['id_question'])
+            'answers' => $processedAnswers,
+            'validation_answer' => session()->getFlashdata('validation_answer') ?? \Config\Services::validation()
         ];
 
         return view('questions/view_question', $data);
