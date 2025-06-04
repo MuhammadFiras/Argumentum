@@ -12,35 +12,62 @@
         .question-detail-container { max-width: 800px; margin: 30px auto; }
         .question-header { background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom:20px;}
         .question-content { font-size: 1.1em; line-height: 1.7; }
-        .answer-card { background-color: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom:15px; }
+        .answer-card {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom:15px;
+            border: 1px solid #dee2e6; /* Default border */
+        }
         .user-info { font-size: 0.9em; color: #6c757d; }
         .btn-submit-answer { background-color: #B92B27; border-color: #B92B27; color:white; }
         .btn-submit-answer:hover { background-color: #a32622; border-color: #a32622; }
 
         /* CSS untuk Bintang Rating */
         .star-rating .star {
-            font-size: 1.5em; /* Ukuran bintang */
-            color: #ccc; /* Warna bintang default */
+            font-size: 1.5em;
+            color: #ccc;
             cursor: pointer;
             transition: color 0.2s;
-            margin-right: 2px; /* Jarak antar bintang */
+            margin-right: 2px;
         }
         .star-rating .star:hover,
         .star-rating .star.rated {
-            color: #ffc107; /* Warna bintang saat di-hover atau sudah di-rate (kuning) */
+            color: #ffc107;
         }
         .rating-summary-text {
             font-size: 0.9em;
             color: #6c757d;
         }
-        .rating-feedback-message { /* Untuk rating-message-* */
+        .rating-feedback-message {
             font-size: 0.8em;
-            min-height: 1.2em; /* Agar layout tidak bergeser saat pesan muncul/hilang */
+            min-height: 1.2em;
             margin-top: 4px;
         }
         .text-info { color: #0dcaf0 !important; }
         .text-success { color: #198754 !important; }
         .text-danger { color: #dc3545 !important; }
+
+        /* CSS untuk Jawaban Terbaik */
+        .best-answer-badge {
+            font-size: 0.8em;
+            font-weight: bold;
+            padding: 0.3em 0.6em;
+            border-radius: 0.25rem;
+            background-color: #198754; /* Warna hijau sukses Bootstrap */
+            color: white;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        .best-answer-card {
+            border: 2px solid #198754; /* Border hijau pada card jawaban terbaik */
+            background-color: #e6f7f0; /* Warna latar sedikit hijau untuk jawaban terbaik */
+        }
+        .toggle-best-answer-btn { /* Untuk tombol di dalam form */
+            font-size: 0.85rem;
+            padding: 0.25rem 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -74,7 +101,7 @@
                         </div>
                     <?php else: ?>
                         <a href="<?= site_url('/login') ?>" class="btn btn-outline-primary me-2">Masuk</a>
-                        <a href="<?= site_url('/register') ?>" class="btn btn-primary">Daftar</a> <?php endif; ?>
+                        <a href="<?= site_url('auth/register') ?>" class="btn btn-primary">Daftar</a> <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -108,7 +135,11 @@
                 <?php if (session()->get('isLoggedIn') && session()->get('user_id') == $question['id_user']): ?>
                     <div class="mt-3">
                         <a href="<?= site_url('questions/edit/' . $question['id_question']) ?>" class="btn btn-sm btn-outline-secondary">Edit</a>
-                        <a href="<?= site_url('questions/delete/' . $question['id_question']) ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus pertanyaan ini?')">Hapus</a>
+                        
+                        <form action="<?= site_url('questions/delete/' . $question['id_question']) ?>" method="post" class="d-inline ms-1" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pertanyaan ini?');">
+                            <?= csrf_field() ?>
+                            <input type="hidden" name="_method" value="POST"> <button type="submit" class="btn btn-sm btn-outline-danger">Hapus</button>
+                        </form>
                     </div>
                 <?php endif; ?>
             </div>
@@ -140,45 +171,68 @@
 
             <?php if (!empty($answers)): ?>
                 <?php foreach ($answers as $answer): ?>
-                    <div class="answer-card" id="answer-<?= esc($answer['id_answer']) ?>">
-                        <div class="user-info mb-2">
-                             <img src="<?= base_url('assets/images/profiles/' . esc($answer['user_photo'] ?? 'default.jpg')) ?>" alt="<?= esc($answer['user_nama']) ?>" width="25" height="25" class="rounded-circle me-1">
-                            <?= esc($answer['user_nama']) ?> · <?= CodeIgniter\I18n\Time::parse($answer['created_at'])->humanize() ?>
+                    <div class="answer-card <?= $answer['is_best_answer'] ? 'best-answer-card' : '' ?>" id="answer-<?= esc($answer['id_answer']) ?>">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="user-info">
+                                 <img src="<?= base_url('assets/images/profiles/' . esc($answer['user_photo'] ?? 'default.jpg')) ?>" alt="<?= esc($answer['user_nama']) ?>" width="25" height="25" class="rounded-circle me-1">
+                                <?= esc($answer['user_nama']) ?>
+                                <?php if ($answer['is_best_answer']): ?>
+                                    <span class="best-answer-badge">Jawaban Terbaik</span>
+                                <?php endif; ?>
+                            </div>
+                            <small class="text-muted"><?= CodeIgniter\I18n\Time::parse($answer['created_at'])->humanize() ?></small>
                         </div>
-                        <div class="answer-content">
+
+                        <div class="answer-content mt-2">
                             <?= nl2br(esc($answer['content'])) ?>
                         </div>
 
-                        <div class="mt-3">
-                            <span class="rating-summary-text">
-                                Rating: 
-                                <strong id="avg-rating-<?= esc($answer['id_answer']) ?>">
-                                    <?= number_format($answer['rating_stats']['average'], 1) ?>
-                                </strong> bintang
-                                (<span id="count-rating-<?= esc($answer['id_answer']) ?>"><?= esc($answer['rating_stats']['count']) ?></span> suara)
-                            </span>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div> <span class="rating-summary-text">
+                                    Rating:
+                                    <strong id="avg-rating-<?= esc($answer['id_answer']) ?>">
+                                        <?= number_format($answer['rating_stats']['average'], 1) ?>
+                                    </strong> bintang
+                                    (<span id="count-rating-<?= esc($answer['id_answer']) ?>"><?= esc($answer['rating_stats']['count']) ?></span> suara)
+                                </span>
 
-                            <?php if (session()->get('isLoggedIn') && session()->get('user_id') != $answer['id_user']): ?>
-                                <div class="star-rating mt-1" data-answer-id="<?= esc($answer['id_answer']) ?>">
-                                    <small>Beri rating:</small>
-                                    <?php $userGivenRating = $answer['user_given_rating']; ?>
-                                    <?php for ($i = 1; $i <= 5; $i++): ?>
-                                        <span class="star <?= ($i <= $userGivenRating) ? 'rated' : '' ?>" data-value="<?= $i ?>">&#9733;</span>
-                                    <?php endfor; ?>
-                                </div>
-                                <div id="rating-feedback-message-<?= esc($answer['id_answer']) ?>" class="rating-feedback-message"></div>
-                            <?php elseif(session()->get('isLoggedIn') && session()->get('user_id') == $answer['id_user']): ?>
-                                <div class="mt-1">
-                                     <small class="text-muted rating-summary-text">Anda tidak bisa memberi rating pada jawaban sendiri.</small>
-                                </div>
-                            <?php elseif(!session()->get('isLoggedIn')): ?>
-                                 <div class="mt-1">
-                                     <small class="rating-summary-text"><a href="<?= site_url('login?redirect=' . urlencode(current_url())) ?>">Masuk</a> untuk memberi rating.</small>
+                                <?php if (session()->get('isLoggedIn') && session()->get('user_id') != $answer['id_user']): ?>
+                                    <div class="star-rating mt-1" data-answer-id="<?= esc($answer['id_answer']) ?>">
+                                        <small>Beri rating:</small>
+                                        <?php $userGivenRating = $answer['user_given_rating']; ?>
+                                        <?php for ($i = 1; $i <= 5; $i++): ?>
+                                            <span class="star <?= ($i <= $userGivenRating) ? 'rated' : '' ?>" data-value="<?= $i ?>">&#9733;</span>
+                                        <?php endfor; ?>
+                                    </div>
+                                    <div id="rating-feedback-message-<?= esc($answer['id_answer']) ?>" class="rating-feedback-message"></div>
+                                <?php elseif(session()->get('isLoggedIn') && session()->get('user_id') == $answer['id_user']): ?>
+                                    <div class="mt-1">
+                                         <small class="text-muted rating-summary-text">Anda tidak bisa memberi rating pada jawaban sendiri.</small>
+                                    </div>
+                                <?php elseif(!session()->get('isLoggedIn')): ?>
+                                     <div class="mt-1">
+                                         <small class="rating-summary-text"><a href="<?= site_url('login?redirect=' . urlencode(current_url())) ?>">Masuk</a> untuk memberi rating.</small>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+
+                            <?php if (session()->get('isLoggedIn') && $question['id_user'] == session()->get('user_id')): ?>
+                                <div class="ms-auto"> <form action="<?= site_url('answer/toggle-best/' . $answer['id_answer']) ?>" method="post" class="d-inline">
+                                        <?= csrf_field() ?>
+                                        <?php if ($answer['is_best_answer']): ?>
+                                            <button type="submit" class="btn btn-sm btn-outline-warning toggle-best-answer-btn">
+                                                Batalkan Jawaban Terbaik
+                                            </button>
+                                        <?php else: ?>
+                                            <button type="submit" class="btn btn-sm btn-outline-success toggle-best-answer-btn">
+                                                Tandai Jawaban Terbaik
+                                            </button>
+                                        <?php endif; ?>
+                                    </form>
                                 </div>
                             <?php endif; ?>
-                        </div>
-                         </div>
-                <?php endforeach; ?>
+                            </div>
+                    </div> <?php endforeach; ?>
             <?php else: ?>
                 <p>Belum ada jawaban untuk pertanyaan ini. Jadilah yang pertama menjawab!</p>
             <?php endif; ?>
@@ -198,7 +252,7 @@
     <script>
     document.addEventListener('DOMContentLoaded', function () {
         const csrfTokenName = '<?= csrf_token() ?>';
-        let csrfTokenValue = '<?= csrf_hash() ?>'; // Initial CSRF Hash
+        let csrfTokenValue = '<?= csrf_hash() ?>'; 
 
         document.querySelectorAll('.star-rating .star').forEach(star => {
             star.addEventListener('click', function () {
@@ -207,7 +261,6 @@
                 const answerId = parent.dataset.answerId;
                 const feedbackDiv = document.getElementById(`rating-feedback-message-${answerId}`);
 
-                // Optimistic UI update
                 parent.querySelectorAll('.star').forEach(s => {
                     s.classList.remove('rated');
                     if (parseInt(s.dataset.value) <= ratingValue) {
@@ -226,18 +279,17 @@
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                         'X-Requested-With': 'XMLHttpRequest'
-                        // CI4 CSRF protection for AJAX often relies on sending token in body
-                        // or using X-CSRF-TOKEN header if configured globally
                     },
                     body: formData.toString()
                 })
                 .then(response => {
-                    // Update CSRF token from response header if provided (best practice for auto-renewing tokens)
                     const newCsrfToken = response.headers.get('X-CSRF-TOKEN');
                     if (newCsrfToken) {
                         csrfTokenValue = newCsrfToken;
-                        // Update any global CSRF input fields if you have them
-                        // document.querySelector(`input[name="${csrfTokenName}"]`).value = newCsrfToken;
+                         // Jika kamu punya input CSRF global di halaman (misal: <meta name="csrf-token" content="...">)
+                         // atau input hidden di form utama, update juga di sana.
+                         // Contoh: document.querySelector('meta[name="csrf-token"]').setAttribute('content', newCsrfToken);
+                         //         document.querySelector('input[name="' + csrfTokenName + '"]').value = newCsrfToken;
                     }
                     if (!response.ok) {
                         return response.json().then(errData => Promise.reject(errData));
@@ -248,12 +300,11 @@
                     if (data.success) {
                         feedbackDiv.textContent = data.message;
                         feedbackDiv.className = 'rating-feedback-message text-success';
-                        document.getElementById(`avg-rating-${answerId}`).textContent = data.average_rating;
+                        document.getElementById(`avg-rating-${answerId}`).textContent = data.average_rating; // Hanya nilai rata-rata
                         document.getElementById(`count-rating-${answerId}`).textContent = data.rating_count;
                     } else {
                         feedbackDiv.textContent = data.message || 'Gagal memberi rating.';
                         feedbackDiv.className = 'rating-feedback-message text-danger';
-                        // Optionally revert optimistic UI update if needed
                     }
                 })
                 .catch(error => {

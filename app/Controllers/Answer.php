@@ -28,10 +28,9 @@ class Answer extends BaseController
 
         $rules = [
             'answer_content' => [
-                'rules' => 'required|min_length[10]',
+                'rules' => 'required',
                 'errors' => [
                     'required' => 'Isi jawaban tidak boleh kosong.',
-                    'min_length' => 'Jawaban minimal {param} karakter.'
                 ]
             ]
         ];
@@ -114,4 +113,42 @@ class Answer extends BaseController
         }
     }
     // TODO: Implementasi edit, update, delete answer
+
+            /**
+     * Menandai atau membatalkan status "Jawaban Terbaik" untuk sebuah jawaban.
+     * @param int $id_answer
+     * @return \CodeIgniter\HTTP\RedirectResponse
+     */
+    public function toggleBestAnswer(int $id_answer) 
+    {
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('/login')->with('error', 'Anda harus login untuk melakukan aksi ini.');
+        }
+
+        $answer = $this->answerModel->find($id_answer);
+        if (!$answer) {
+            return redirect()->back()->with('error', 'Jawaban tidak ditemukan.');
+        }
+
+        $question = $this->questionModel->find($answer['id_question']);
+        if (!$question) {
+            return redirect()->back()->with('error', 'Pertanyaan terkait tidak ditemukan.');
+        }
+
+        if ($question['id_user'] != session()->get('user_id')) {
+            return redirect()->back()->with('error', 'Anda tidak memiliki hak untuk mengubah status jawaban ini.');
+        }
+
+        if ($answer['is_best_answer']) {
+            if ($this->answerModel->unmarkAsBest($id_answer)) {
+                return redirect()->to('question/' . $question['slug'])->with('success', 'Status jawaban terbaik berhasil dibatalkan.');
+            }
+        } else {
+            if ($this->answerModel->markAsBest($id_answer, $question['id_question'])) {
+                return redirect()->to('question/' . $question['slug'])->with('success', 'Jawaban berhasil ditandai sebagai yang terbaik!');
+            }
+        }
+
+        return redirect()->to('question/' . $question['slug'])->with('error', 'Gagal mengubah status jawaban.');
+    }
 }
