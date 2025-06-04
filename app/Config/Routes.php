@@ -29,4 +29,9 @@ $routes->post('/answer/submit/(:num)', 'Answer::submit/$1', ['filter' => 'authGu
 $routes->post('/answer/rate/(:num)', 'Answer::rateAnswer/$1', ['filter' => 'authGuard']);
 $routes->post('/answer/toggle-best/(:num)', 'Answer::toggleBestAnswer/$1', ['filter' => 'authGuard']);
 
+// Rute BARU untuk Edit dan Delete Jawaban
+$routes->get('/answer/edit/(:num)', 'Answer::edit/$1', ['filter' => 'authGuard']);       // Menampilkan form edit jawaban
+$routes->post('/answer/update/(:num)', 'Answer::update/$1', ['filter' => 'authGuard']);  // Memproses update jawaban
+$routes->post('/answer/delete/(:num)', 'Answer::delete/$1', ['filter' => 'authGuard']);  // Memproses delete jawaban
+
 // $routes->setAutoRoute(true);

@@ -9,7 +9,7 @@
         body { font-family: sans-serif; background-color: #f8f9fa; }
         .navbar-brand { font-weight: bold; color: #B92B27 !important; }
         .question-card { margin-bottom: 20px; }
-        .question-title a { text-decoration: none; color: #212529; }
+        .question-title a { text-decoration: none; color: #212529; font-weight: bold}
         .question-title a:hover { color: #B92B27; }
         .user-info { font-size: 0.9em; color: #6c757d; }
         .ask-button { background-color: #B92B27; border-color: #B92B27; color:white; }

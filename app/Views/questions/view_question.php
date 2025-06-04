@@ -187,6 +187,16 @@
                             <?= nl2br(esc($answer['content'])) ?>
                         </div>
 
+                        <?php if (session()->get('isLoggedIn') && session()->get('user_id') == $answer['id_user']): ?>
+                            <div class="mt-2 pt-2 border-top d-flex justify-content-end">
+                                <a href="<?= site_url('answer/edit/' . $answer['id_answer']) ?>" class="btn btn-sm btn-outline-secondary me-2">Edit Jawaban</a>
+                                <form action="<?= site_url('answer/delete/' . $answer['id_answer']) ?>" method="post" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus jawaban ini?');">
+                                    <?= csrf_field() ?>
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Hapus Jawaban</button>
+                                </form>
+                            </div>
+                        <?php endif; ?>
+
                         <div class="d-flex justify-content-between align-items-center mt-3">
                             <div> <span class="rating-summary-text">
                                     Rating:

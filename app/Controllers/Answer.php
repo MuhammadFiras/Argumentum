@@ -4,24 +4,26 @@ namespace App\Controllers;
 
 use App\Models\AnswerModel;
 use App\Models\QuestionModel;
-use App\Models\AnswerRatingModel; // <--- TAMBAHKAN USE STATEMENT
+use App\Models\AnswerRatingModel;
 
 class Answer extends BaseController
 {
     protected $answerModel;
     protected $questionModel;
-    protected $answerRatingModel; // <--- TAMBAHKAN PROPERTY
+    protected $answerRatingModel;
     protected $helpers = ['form', 'url'];
 
     public function __construct()
     {
         $this->answerModel = new AnswerModel();
-        $this->questionModel = new QuestionModel();
-        $this->answerRatingModel = new AnswerRatingModel(); // <--- INSTANSIASI MODEL
+        $this->questionModel = new QuestionModel(); // Diperlukan untuk mendapatkan slug pertanyaan saat redirect
+        $this->answerRatingModel = new AnswerRatingModel();
     }
 
+    // ... (method submit(), rateAnswer(), toggleBestAnswer() tetap sama) ...
     public function submit($id_question)
     {
+        // ... (kode submit jawaban yang sudah ada) ...
         if (!session()->get('isLoggedIn')) {
             return redirect()->to('/login')->with('error', 'Anda harus login untuk menjawab.');
         }
@@ -59,18 +61,9 @@ class Answer extends BaseController
         }
     }
 
-    /**
-     * Menerima dan menyimpan rating untuk sebuah jawaban via AJAX.
-     * @param int $id_answer
-     * @return \CodeIgniter\HTTP\ResponseInterface
-     */
     public function rateAnswer(int $id_answer)
     {
-        // Pastikan request adalah AJAX (opsional tapi baik untuk endpoint khusus AJAX)
-        // if (!$this->request->isAJAX()) {
-        //     return $this->response->setStatusCode(403)->setBody('Akses ditolak.');
-        // }
-
+        // ... (kode rate answer yang sudah ada) ...
         if (!session()->get('isLoggedIn')) {
             return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'Anda harus login untuk memberi rating.']);
         }
@@ -78,7 +71,6 @@ class Answer extends BaseController
         $ratingValue = $this->request->getPost('rating');
         $userId = session()->get('user_id');
 
-        // Validasi input rating
         if (empty($ratingValue) || !is_numeric($ratingValue) || $ratingValue < 1 || $ratingValue > 5) {
             return $this->response->setStatusCode(400)->setJSON(['success' => false, 'message' => 'Nilai rating tidak valid (1-5).']);
         }
@@ -88,7 +80,6 @@ class Answer extends BaseController
              return $this->response->setStatusCode(404)->setJSON(['success' => false, 'message' => 'Jawaban tidak ditemukan.']);
         }
 
-        // User tidak bisa memberi rating pada jawabannya sendiri
         if ($answerExists['id_user'] == $userId) {
             return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'Anda tidak bisa memberi rating pada jawaban sendiri.']);
         }
@@ -104,23 +95,17 @@ class Answer extends BaseController
             return $this->response->setJSON([
                 'success' => true,
                 'message' => 'Rating berhasil disimpan!',
-                'average_rating' => number_format($newRatingStats['average'], 1), // Format untuk tampilan
+                'average_rating' => number_format($newRatingStats['average'], 1),
                 'rating_count' => $newRatingStats['count']
             ]);
         } else {
-            // Error ini mungkin terjadi jika ada masalah database atau unique constraint gagal dihandle (seharusnya tidak jika logic saveRating benar)
             return $this->response->setStatusCode(500)->setJSON(['success' => false, 'message' => 'Gagal menyimpan rating. Silakan coba lagi.']);
         }
     }
-    // TODO: Implementasi edit, update, delete answer
 
-            /**
-     * Menandai atau membatalkan status "Jawaban Terbaik" untuk sebuah jawaban.
-     * @param int $id_answer
-     * @return \CodeIgniter\HTTP\RedirectResponse
-     */
-    public function toggleBestAnswer(int $id_answer) 
+    public function toggleBestAnswer(int $id_answer)
     {
+        // ... (kode toggle best answer yang sudah ada) ...
         if (!session()->get('isLoggedIn')) {
             return redirect()->to('/login')->with('error', 'Anda harus login untuk melakukan aksi ini.');
         }
@@ -148,7 +133,119 @@ class Answer extends BaseController
                 return redirect()->to('question/' . $question['slug'])->with('success', 'Jawaban berhasil ditandai sebagai yang terbaik!');
             }
         }
-
         return redirect()->to('question/' . $question['slug'])->with('error', 'Gagal mengubah status jawaban.');
+    }
+
+    /**
+     * Menampilkan form untuk mengedit jawaban.
+     * @param int $id_answer
+     */
+    public function edit($id_answer)
+    {
+        $answer = $this->answerModel->find($id_answer);
+
+        if (!$answer) {
+            return redirect()->back()->with('error', 'Jawaban tidak ditemukan.');
+        }
+
+        // Otorisasi: Hanya pemilik jawaban yang boleh mengedit
+        if (!session()->get('isLoggedIn') || $answer['id_user'] != session()->get('user_id')) {
+            // Di masa depan, tambahkan pengecekan role admin di sini jika perlu
+            // || session()->get('role') != 'admin'
+            $question = $this->questionModel->find($answer['id_question']); // Untuk redirect kembali
+            $slug = $question ? $question['slug'] : '';
+            return redirect()->to($slug ? 'question/' . $slug : '/')->with('error', 'Anda tidak memiliki hak untuk mengedit jawaban ini.');
+        }
+
+        // Ambil data pertanyaan untuk link "Kembali ke Pertanyaan"
+        $question = $this->questionModel->find($answer['id_question']);
+
+        $data = [
+            'title' => 'Edit Jawaban',
+            'answer' => $answer,
+            'question' => $question, // Untuk link kembali
+            'validation' => \Config\Services::validation()
+        ];
+
+        return view('answers/edit_answer', $data); // Kita akan buat view ini
+    }
+
+    /**
+     * Memproses update jawaban.
+     * @param int $id_answer
+     */
+    public function update($id_answer)
+    {
+        $answer = $this->answerModel->find($id_answer);
+
+        if (!$answer) {
+            return redirect()->back()->with('error', 'Jawaban tidak ditemukan.');
+        }
+
+        // Otorisasi: Hanya pemilik jawaban yang boleh mengupdate
+        if (!session()->get('isLoggedIn') || $answer['id_user'] != session()->get('user_id')) {
+            $question = $this->questionModel->find($answer['id_question']);
+            $slug = $question ? $question['slug'] : '';
+            return redirect()->to($slug ? 'question/' . $slug : '/')->with('error', 'Anda tidak memiliki hak untuk mengupdate jawaban ini.');
+        }
+
+        $rules = [
+            'answer_content' => [
+                'rules' => 'required', // Validasi dasar, bisa ditambahkan min_length jika mau
+                'errors' => [
+                    'required' => 'Isi jawaban tidak boleh kosong.'
+                ]
+            ]
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->to('answer/edit/' . $id_answer)->withInput()->with('validation', $this->validator);
+        }
+
+        $updateData = [
+            'content' => $this->request->getPost('answer_content')
+        ];
+
+        // Dapatkan slug pertanyaan untuk redirect
+        $question = $this->questionModel->find($answer['id_question']);
+        $slug = $question ? $question['slug'] : '';
+
+
+        if ($this->answerModel->update($id_answer, $updateData)) {
+            return redirect()->to($slug ? 'question/' . $slug : '/')->with('success', 'Jawaban berhasil diperbarui.');
+        } else {
+            return redirect()->to('answer/edit/' . $id_answer)->withInput()->with('error', 'Gagal memperbarui jawaban.');
+        }
+    }
+
+    /**
+     * Menghapus jawaban.
+     * @param int $id_answer
+     */
+    public function delete($id_answer)
+    {
+        $answer = $this->answerModel->find($id_answer);
+
+        if (!$answer) {
+            return redirect()->back()->with('error', 'Jawaban tidak ditemukan.');
+        }
+
+        // Otorisasi: Hanya pemilik jawaban yang boleh menghapus (atau admin nanti)
+        if (!session()->get('isLoggedIn') || $answer['id_user'] != session()->get('user_id')) {
+            // || session()->get('role') != 'admin'
+            $question = $this->questionModel->find($answer['id_question']);
+            $slug = $question ? $question['slug'] : '';
+            return redirect()->to($slug ? 'question/' . $slug : '/')->with('error', 'Anda tidak memiliki hak untuk menghapus jawaban ini.');
+        }
+
+        // Dapatkan slug pertanyaan untuk redirect
+        $question = $this->questionModel->find($answer['id_question']);
+        $slug = $question ? $question['slug'] : '';
+
+        if ($this->answerModel->delete($id_answer)) {
+            return redirect()->to($slug ? 'question/' . $slug : '/')->with('success', 'Jawaban berhasil dihapus.');
+        } else {
+            return redirect()->to($slug ? 'question/' . $slug : '/')->with('error', 'Gagal menghapus jawaban.');
+        }
     }
 }
