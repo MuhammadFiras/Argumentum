@@ -43,7 +43,7 @@
             background-color: #a32622;
             border-color: #a32622;
         }
-        /* Style untuk memastikan footer menempel di bawah jika konten pendekkkkkkkkkkkkkkkkkkkk */
+        /* Style untuk memastikan footer menempel di bawah jika konten pendek */
         .main-content-wrapper {
             flex-grow: 1;
         }
