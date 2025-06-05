@@ -78,7 +78,7 @@
                             $photo_url = base_url('default.jpg'); // Default jika tidak ada foto atau fotonya 'default.jpg'
                             if (!empty($user_profile['photo_profile']) && $user_profile['photo_profile'] != 'default.jpg') {
                                 // Jika ada foto profil spesifik dan BUKAN 'default.jpg'
-                                $specific_photo_path = 'profiles/' . esc($user_profile['photo_profile']);
+                                $specific_photo_path = 'assets/images/profiles/' . esc($user_profile['photo_profile']);
                                 // Cek apakah file foto spesifik ada, jika tidak, fallback ke default.jpg di root public
                                 // Pengecekan file existence sebaiknya tidak dilakukan di view karena performa,
                                 // tapi untuk kasus path, kita asumsikan path ini benar jika photo_profile diisi dengan benar.
