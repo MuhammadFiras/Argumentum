@@ -6,7 +6,7 @@ use App\Models\QuestionModel;
 use App\Models\AnswerModel;
 use App\Models\AnswerRatingModel;
 
-class Question extends BaseController
+class QuestionController extends BaseController
 {
     protected $questionModel;
     protected $answerModel;
