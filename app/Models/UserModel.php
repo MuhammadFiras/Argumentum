@@ -8,14 +8,22 @@ class UserModel extends Model
 {
     protected $table            = 'users'; // Nama tabel di database
     protected $primaryKey       = 'id_user'; // Primary key tabel
-
-    protected $useAutoIncrement = true; // Menggunakan auto increment
-
+    protected $useAutoIncrement = true;
     protected $returnType       = 'array'; // Bisa 'array' atau 'object' atau entity class
     protected $useSoftDeletes   = false; // Jika true, data tidak benar-benar dihapus tapi ditandai deleted_at
 
     // Kolom yang diizinkan untuk diisi melalui create/update (mass assignment)
-    protected $allowedFields    = ['nama_lengkap', 'email', 'password', 'role', 'photo_profile'];
+    protected $allowedFields    = ['nama_lengkap', 
+                                   'email', 
+                                   'password', 
+                                   'role', 
+                                   'photo_profile',
+                                    'photo_profile',
+                                    'description',      // <--- BARU
+                                    'credentials',      // <--- BARU
+                                    'linkedin_url',     // <--- BARU
+                                    'instagram_url'     // <--- BARU
+                                ];
 
     // Dates
     protected $useTimestamps = true; // Otomatis mengisi created_at dan updated_at

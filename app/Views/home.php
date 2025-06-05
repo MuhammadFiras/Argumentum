@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { font-family: sans-serif; background-color: #f8f9fa; }
+        h1 {color: #B92B27;}
         .navbar-brand { font-weight: bold; color: #B92B27 !important; }
         .question-card { margin-bottom: 20px; }
         .question-title a { text-decoration: none; color: #212529; font-weight: bold}
@@ -37,15 +38,14 @@
                                 <?= esc(session()->get('nama_lengkap')) ?>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton1">
-                                <li><a class="dropdown-item" href="#">Profil Saya</a></li>
-                                <li><a class="dropdown-item" href="#">Pengaturan</a></li>
+                                <li><a class="dropdown-item" href="<?= site_url('/profile') ?>">Profil Saya</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="<?= site_url('/logout') ?>">Logout</a></li>
                             </ul>
                         </div>
                     <?php else: ?>
                         <a href="<?= site_url('/login') ?>" class="btn btn-outline-primary me-2">Masuk</a>
-                        <a href="<?= site_url('/register') ?>" class="btn btn-primary">Daftar</a>
+                        <a href="<?= site_url('auth/register') ?>" class="btn btn-primary">Daftar</a>
                     <?php endif; ?>
                 </div>
             </div>

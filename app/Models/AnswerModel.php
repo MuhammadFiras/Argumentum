@@ -12,7 +12,7 @@ class AnswerModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
 
-    protected $allowedFields    = ['id_question', 'id_user', 'content', 'is_best_answer']; // Pastikan 'is_best_answer' ada di sini
+    protected $allowedFields    = ['id_question', 'id_user', 'content', 'is_best_answer']; 
 
     // Dates
     protected $useTimestamps = true;
@@ -80,5 +80,20 @@ class AnswerModel extends Model
          return $this->where('id_answer', $id_answer)
                      ->set(['is_best_answer' => 0])
                      ->update();
+    }
+
+        /**
+     * Mengambil jawaban yang diberikan oleh pengguna tertentu, beserta judul dan slug pertanyaan terkait.
+     * @param int $id_user
+     * @return array
+     */
+    public function getAnswersByUserId(int $id_user): array
+    {
+        $builder = $this->db->table('answers a');
+        $builder->select('a.*, q.title as question_title, q.slug as question_slug');
+        $builder->join('questions q', 'q.id_question = a.id_question');
+        $builder->where('a.id_user', $id_user);
+        $builder->orderBy('a.created_at', 'DESC'); // Jawaban terbaru dulu
+        return $builder->get()->getResultArray();
     }
 }

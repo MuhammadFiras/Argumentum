@@ -95,7 +95,9 @@
                                 <?= esc(session()->get('nama_lengkap')) ?>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton1">
-                                <li><a class="dropdown-item" href="#">Profil Saya</a></li>
+                                <li><a class="dropdown-item" href="<?= site_url('/profile') ?>">Profil Saya</a></li>
+                                <li><a class="dropdown-item" href="<?= site_url('/profile') ?>">Edit Profil</a></li>
+                                <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="<?= site_url('/logout') ?>">Logout</a></li>
                             </ul>
                         </div>

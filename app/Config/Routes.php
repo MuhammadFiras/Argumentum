@@ -34,4 +34,10 @@ $routes->get('/answer/edit/(:num)', 'Answer::edit/$1', ['filter' => 'authGuard']
 $routes->post('/answer/update/(:num)', 'Answer::update/$1', ['filter' => 'authGuard']);  // Memproses update jawaban
 $routes->post('/answer/delete/(:num)', 'Answer::delete/$1', ['filter' => 'authGuard']);  // Memproses delete jawaban
 
+// Routes untuk Profil Pengguna
+$routes->get('/profile', 'ProfileController::view', ['filter' => 'authGuard']); // Profil user yang login
+$routes->get('/profile/(:num)', 'ProfileController::view/$1'); // Profil user lain berdasarkan ID
+$routes->get('/profile/edit', 'ProfileController::edit', ['filter' => 'authGuard']);    // Form edit profil
+$routes->post('/profile/update', 'ProfileController::update', ['filter' => 'authGuard']); // Proses update profil
+
 // $routes->setAutoRoute(true);
