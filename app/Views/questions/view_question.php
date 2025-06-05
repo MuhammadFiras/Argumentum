@@ -134,14 +134,22 @@
                 <div class="question-content">
                     <?= nl2br(esc($question['content'])) ?>
                 </div>
-                <?php if (session()->get('isLoggedIn') && session()->get('user_id') == $question['id_user']): ?>
+                <?php if (session()->get('isLoggedIn')): ?>
+                    <?php
+                        $isOwner = (session()->get('user_id') == $question['id_user']);
+                        $isAdmin = (session()->get('role') == 'admin');
+                    ?>
                     <div class="mt-3">
-                        <a href="<?= site_url('questions/edit/' . $question['id_question']) ?>" class="btn btn-sm btn-outline-secondary">Edit</a>
-                        
-                        <form action="<?= site_url('questions/delete/' . $question['id_question']) ?>" method="post" class="d-inline ms-1" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pertanyaan ini?');">
-                            <?= csrf_field() ?>
-                            <input type="hidden" name="_method" value="POST"> <button type="submit" class="btn btn-sm btn-outline-danger">Hapus</button>
-                        </form>
+                        <?php if ($isOwner): ?>
+                            <a href="<?= site_url('questions/edit/' . $question['id_question']) ?>" class="btn btn-sm btn-outline-secondary">Edit Pertanyaan</a>
+                        <?php endif; ?>
+
+                        <?php if ($isOwner || $isAdmin): // Tombol hapus muncul untuk pemilik ATAU admin ?>
+                            <form action="<?= site_url('questions/delete/' . $question['id_question']) ?>" method="post" class="d-inline ms-1" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pertanyaan ini?<?= $isAdmin && !$isOwner ? " (Sebagai Admin)" : "" ?>');">
+                                <?= csrf_field() ?>
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Hapus Pertanyaan</button>
+                            </form>
+                        <?php endif; ?>
                     </div>
                 <?php endif; ?>
             </div>
@@ -189,13 +197,22 @@
                             <?= nl2br(esc($answer['content'])) ?>
                         </div>
 
-                        <?php if (session()->get('isLoggedIn') && session()->get('user_id') == $answer['id_user']): ?>
+                        <?php if (session()->get('isLoggedIn')): ?>
+                            <?php
+                                $isAnswerOwner = (session()->get('user_id') == $answer['id_user']);
+                                $isAdmin = (session()->get('role') == 'admin');
+                            ?>
                             <div class="mt-2 pt-2 border-top d-flex justify-content-end">
-                                <a href="<?= site_url('answer/edit/' . $answer['id_answer']) ?>" class="btn btn-sm btn-outline-secondary me-2">Edit Jawaban</a>
-                                <form action="<?= site_url('answer/delete/' . $answer['id_answer']) ?>" method="post" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus jawaban ini?');">
-                                    <?= csrf_field() ?>
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">Hapus Jawaban</button>
-                                </form>
+                                <?php if ($isAnswerOwner): // Tombol Edit hanya untuk pemilik jawaban ?>
+                                    <a href="<?= site_url('answer/edit/' . $answer['id_answer']) ?>" class="btn btn-sm btn-outline-secondary me-2">Edit Jawaban</a>
+                                <?php endif; ?>
+
+                                <?php if ($isAnswerOwner || $isAdmin): // Tombol Hapus untuk pemilik ATAU admin ?>
+                                    <form action="<?= site_url('answer/delete/' . $answer['id_answer']) ?>" method="post" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus jawaban ini?<?= $isAdmin && !$isAnswerOwner ? " (Sebagai Admin)" : "" ?>');">
+                                        <?= csrf_field() ?>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Hapus Jawaban</button>
+                                    </form>
+                                <?php endif; ?>
                             </div>
                         <?php endif; ?>
 

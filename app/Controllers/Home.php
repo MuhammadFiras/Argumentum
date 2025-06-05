@@ -17,7 +17,7 @@ class Home extends BaseController
     public function index(): string
     {
         $data = [
-            'title' => 'Selamat Datang di Quora KW',
+            'title' => 'Selamat Datang di Argumentum',
             'questions' => $this->questionModel->getQuestionsWithUser() // Ambil semua pertanyaan dengan info user
         ];
         return view('home', $data); // Kita akan buat view 'home.php'

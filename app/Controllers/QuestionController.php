@@ -6,7 +6,7 @@ use App\Models\QuestionModel;
 use App\Models\AnswerModel;
 use App\Models\AnswerRatingModel;
 
-class QuestionController extends BaseController
+class QuestionController extends BaseController // Pastikan nama class adalah QuestionController
 {
     protected $questionModel;
     protected $answerModel;
@@ -20,7 +20,46 @@ class QuestionController extends BaseController
         $this->answerRatingModel = new AnswerRatingModel();
     }
 
-    // Menampilkan form untuk bertanya
+    // ... (method ask(), create(), view(), edit(), update() tetap sama seperti sebelumnya) ...
+    // Contoh method view() dari sebelumnya untuk konteks:
+    public function view($slug = null)
+    {
+        if ($slug === null) {
+            return redirect()->to('/')->with('error', 'Pertanyaan tidak ditemukan.');
+        }
+
+        $question = $this->questionModel->getQuestionsWithUser($slug);
+
+        if (!$question) {
+            return redirect()->to('/')->with('error', 'Pertanyaan tidak ditemukan atau slug tidak valid.');
+        }
+
+        $answersFromDB = $this->answerModel->getAnswersForQuestion($question['id_question']);
+        $processedAnswers = [];
+        $loggedInUserId = session()->get('isLoggedIn') ? session()->get('user_id') : null;
+
+        foreach ($answersFromDB as $answer) {
+            $answer['rating_stats'] = $this->answerRatingModel->getAverageRating($answer['id_answer']);
+            $userGivenRatingValue = 0;
+            if ($loggedInUserId) {
+                $userSpecificRating = $this->answerRatingModel->getRatingByUser($answer['id_answer'], $loggedInUserId);
+                if ($userSpecificRating) {
+                    $userGivenRatingValue = (int)$userSpecificRating['rating'];
+                }
+            }
+            $answer['user_given_rating'] = $userGivenRatingValue;
+            $processedAnswers[] = $answer;
+        }
+
+        $data = [
+            'title' => esc($question['title']),
+            'question' => $question,
+            'answers' => $processedAnswers,
+            'validation_answer' => session()->getFlashdata('validation_answer') ?? \Config\Services::validation()
+        ];
+        return view('questions/view_question', $data);
+    }
+
     public function ask()
     {
         $data = [
@@ -30,21 +69,20 @@ class QuestionController extends BaseController
         return view('questions/ask_question', $data);
     }
 
-    // Memproses pertanyaan yang disubmit
     public function create()
     {
-        // ... (kode create tetap sama) ...
         $rules = [
             'title' => [
-                'rules' => 'required',
+                'rules' => 'required|max_length[255]',
                 'errors' => [
                     'required' => 'Judul pertanyaan wajib diisi.',
+                    'max_length' => 'Judul pertanyaan maksimal {param} karakter.'
                 ]
             ],
             'content' => [
                 'rules' => 'required',
                 'errors' => [
-                    'required' => 'Deskripsi pertanyaan wajib diisi.',
+                    'required' => 'Isi pertanyaan wajib diisi.',
                 ]
             ]
         ];
@@ -74,80 +112,27 @@ class QuestionController extends BaseController
             return redirect()->back()->withInput()->with('error', 'Gagal mempublikasikan pertanyaan.');
         }
     }
-
-    // Menampilkan detail pertanyaan dan jawabannya
-    public function view($slug = null)
-    {
-        // ... (kode view tetap sama) ...
-        if ($slug === null) {
-            return redirect()->to('/')->with('error', 'Pertanyaan tidak ditemukan.');
-        }
-
-        $question = $this->questionModel->getQuestionsWithUser($slug);
-
-        if (!$question) {
-            return redirect()->to('/')->with('error', 'Pertanyaan tidak ditemukan atau slug tidak valid.');
-        }
-
-        $answersFromDB = $this->answerModel->getAnswersForQuestion($question['id_question']);
-        $processedAnswers = [];
-
-        $loggedInUserId = session()->get('isLoggedIn') ? session()->get('user_id') : null;
-
-        foreach ($answersFromDB as $answer) {
-            $answer['rating_stats'] = $this->answerRatingModel->getAverageRating($answer['id_answer']);
-            $userGivenRatingValue = 0;
-            if ($loggedInUserId) {
-                $userSpecificRating = $this->answerRatingModel->getRatingByUser($answer['id_answer'], $loggedInUserId);
-                if ($userSpecificRating) {
-                    $userGivenRatingValue = (int)$userSpecificRating['rating'];
-                }
-            }
-            $answer['user_given_rating'] = $userGivenRatingValue;
-            $processedAnswers[] = $answer;
-        }
-
-        $data = [
-            'title' => esc($question['title']),
-            'question' => $question,
-            'answers' => $processedAnswers,
-            'validation_answer' => session()->getFlashdata('validation_answer') ?? \Config\Services::validation()
-        ];
-
-        return view('questions/view_question', $data);
-    }
-
-    /**
-     * Menampilkan form untuk mengedit pertanyaan.
-     * @param int $id_question
-     */
+    
     public function edit($id_question)
     {
         $question = $this->questionModel->find($id_question);
 
-        // Cek apakah pertanyaan ada
         if (!$question) {
             return redirect()->to('/')->with('error', 'Pertanyaan tidak ditemukan.');
         }
 
-        // Otorisasi: Pastikan user yang login adalah pemilik pertanyaan
         if (!session()->get('isLoggedIn') || $question['id_user'] != session()->get('user_id')) {
-            // Atau bisa juga admin di masa depan: || session()->get('role') != 'admin'
             return redirect()->to('/')->with('error', 'Anda tidak memiliki hak untuk mengedit pertanyaan ini.');
         }
 
         $data = [
             'title' => 'Edit Pertanyaan: ' . esc($question['title']),
             'question' => $question,
-            'validation' => \Config\Services::validation() // Untuk menampilkan error validasi jika ada dari proses update
+            'validation' => \Config\Services::validation()
         ];
-        return view('questions/edit_question', $data); // Kita akan buat view ini
+        return view('questions/edit_question', $data);
     }
 
-    /**
-     * Memproses update pertanyaan.
-     * @param int $id_question
-     */
     public function update($id_question)
     {
         $question = $this->questionModel->find($id_question);
@@ -156,35 +141,37 @@ class QuestionController extends BaseController
             return redirect()->to('/')->with('error', 'Pertanyaan tidak ditemukan.');
         }
 
-        // Otorisasi
         if (!session()->get('isLoggedIn') || $question['id_user'] != session()->get('user_id')) {
-            // Atau admin
             return redirect()->to('/')->with('error', 'Anda tidak memiliki hak untuk mengupdate pertanyaan ini.');
         }
 
-         // Salin pesan error dari method create untuk keringkasan
-        $rules['title']['errors'] = [
-            'required' => 'Judul pertanyaan wajib diisi.',
+        $rules = [
+            'title' => [
+                'rules' => 'required|max_length[255]',
+                'errors' => [
+                    'required' => 'Judul pertanyaan wajib diisi.',
+                    'max_length' => 'Judul pertanyaan maksimal {param} karakter.'
+                ]
+            ],
+            'content' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Isi pertanyaan wajib diisi.',
+                ]
+            ]
         ];
-        $rules['content']['errors'] = [
-            'required' => 'Isi pertanyaan wajib diisi.',
-        ];
-
 
         if (!$this->validate($rules)) {
-            // Kembali ke form edit dengan error dan input lama
             return redirect()->to('/questions/edit/' . $id_question)->withInput()->with('validation', $this->validator);
         }
-
+        
         $newTitle = $this->request->getPost('title');
-        $newSlug = $question['slug']; // Default ke slug lama
+        $newSlug = $question['slug']; 
 
-        // Jika judul berubah, buat slug baru dan pastikan unik (kecuali untuk dirinya sendiri)
         if ($newTitle != $question['title']) {
             $newSlug = url_title($newTitle, '-', true);
             $originalSlug = $newSlug;
             $counter = 1;
-            // Cek apakah slug baru sudah ada dan bukan milik pertanyaan ini sendiri
             $existingQuestionWithSlug = $this->questionModel->where('slug', $newSlug)->where('id_question !=', $id_question)->first();
             while ($existingQuestionWithSlug) {
                 $newSlug = $originalSlug . '-' . $counter;
@@ -212,29 +199,40 @@ class QuestionController extends BaseController
      */
     public function delete($id_question)
     {
-        // Pastikan method adalah POST (jika rute adalah POST)
-        // if (!$this->request->is('post')) {
-        //     return redirect()->back()->with('error', 'Aksi tidak diizinkan.');
-        // }
+        // 1. Pastikan user sudah login
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('/login')->with('error', 'Anda harus login untuk melakukan aksi ini.');
+        }
 
+        // 2. Dapatkan data pertanyaan
         $question = $this->questionModel->find($id_question);
 
+        // 3. Cek apakah pertanyaan ada
         if (!$question) {
             return redirect()->to('/')->with('error', 'Pertanyaan tidak ditemukan.');
         }
 
-        // Otorisasi: Pastikan user yang login adalah pemilik pertanyaan (atau admin nanti)
-        if (!session()->get('isLoggedIn') || $question['id_user'] != session()->get('user_id')) {
-            // Atau admin
-            return redirect()->to('/')->with('error', 'Anda tidak memiliki hak untuk menghapus pertanyaan ini.');
+        // 4. Otorisasi: Pemilik pertanyaan ATAU Admin boleh menghapus
+        $isOwner = ($question['id_user'] == session()->get('user_id'));
+        $isAdmin = (session()->get('role') == 'admin'); // Ambil role dari session
+
+        if (!($isOwner || $isAdmin)) {
+            return redirect()->to('/question/' . $question['slug'])->with('error', 'Anda tidak memiliki hak untuk menghapus pertanyaan ini.');
         }
 
-        // Hapus juga jawaban terkait (CASCADE ON DELETE di DB seharusnya menangani ini,
-        // tapi bisa juga dilakukan secara manual jika perlu logika tambahan)
+        // 5. Proses penghapusan
+        // Dengan ON DELETE CASCADE di database, jawaban terkait akan ikut terhapus.
+        // Jika tidak ada CASCADE, kamu mungkin perlu menghapus jawaban secara manual di sini:
         // $this->answerModel->where('id_question', $id_question)->delete();
 
         if ($this->questionModel->delete($id_question)) {
-            return redirect()->to('/')->with('success', 'Pertanyaan berhasil dihapus.');
+            // Jika admin yang menghapus pertanyaan orang lain, mungkin redirect ke halaman admin atau halaman utama.
+            // Jika pemilik yang menghapus, redirect ke halaman utama atau daftar pertanyaan mereka.
+            $message = 'Pertanyaan berhasil dihapus.';
+            if ($isAdmin && !$isOwner) {
+                $message = 'Pertanyaan (ID: ' . $id_question . ') berhasil dihapus oleh Admin.';
+            }
+            return redirect()->to('/')->with('success', $message);
         } else {
             return redirect()->to('/question/' . $question['slug'])->with('error', 'Gagal menghapus pertanyaan.');
         }

@@ -224,26 +224,40 @@ class AnswerController extends BaseController
      */
     public function delete($id_answer)
     {
-        $answer = $this->answerModel->find($id_answer);
-
-        if (!$answer) {
-            return redirect()->back()->with('error', 'Jawaban tidak ditemukan.');
+        // 1. Pastikan user sudah login
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('/login')->with('error', 'Anda harus login untuk melakukan aksi ini.');
         }
 
-        // Otorisasi: Hanya pemilik jawaban yang boleh menghapus (atau admin nanti)
-        if (!session()->get('isLoggedIn') || $answer['id_user'] != session()->get('user_id')) {
-            // || session()->get('role') != 'admin'
+        // 2. Dapatkan data jawaban
+        $answer = $this->answerModel->find($id_answer);
+
+        // 3. Cek apakah jawaban ada
+        if (!$answer) {
+            return redirect()->back()->with('error', 'Jawaban tidak ditemukan.'); // Redirect kembali ke halaman sebelumnya
+        }
+
+        // 4. Otorisasi: Pemilik jawaban ATAU Admin boleh menghapus
+        $isOwner = ($answer['id_user'] == session()->get('user_id'));
+        $isAdmin = (session()->get('role') == 'admin'); // Ambil role dari session
+
+        if (!($isOwner || $isAdmin)) {
             $question = $this->questionModel->find($answer['id_question']);
             $slug = $question ? $question['slug'] : '';
             return redirect()->to($slug ? 'question/' . $slug : '/')->with('error', 'Anda tidak memiliki hak untuk menghapus jawaban ini.');
         }
 
-        // Dapatkan slug pertanyaan untuk redirect
+        // Dapatkan slug pertanyaan untuk redirect sebelum menghapus jawaban
         $question = $this->questionModel->find($answer['id_question']);
         $slug = $question ? $question['slug'] : '';
 
+        // 5. Proses penghapusan
         if ($this->answerModel->delete($id_answer)) {
-            return redirect()->to($slug ? 'question/' . $slug : '/')->with('success', 'Jawaban berhasil dihapus.');
+            $message = 'Jawaban berhasil dihapus.';
+            if ($isAdmin && !$isOwner) {
+                $message = 'Jawaban (ID: ' . $id_answer . ') berhasil dihapus oleh Admin.';
+            }
+            return redirect()->to($slug ? 'question/' . $slug : '/')->with('success', $message);
         } else {
             return redirect()->to($slug ? 'question/' . $slug : '/')->with('error', 'Gagal menghapus jawaban.');
         }
