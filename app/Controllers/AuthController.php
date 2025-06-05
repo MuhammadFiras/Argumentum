@@ -103,10 +103,11 @@ class AuthController extends BaseController
         // Validasi Input (Server-side)
         $rules = [
             'nama_lengkap' => [
-                'rules' => 'required|min_length[3]|max_length[100]',
+                'rules' => 'required|min_length[3]|max_length[100]|is_unique[users.nama_lengkap]',
                 'errors' => [
                     'required' => 'Nama lengkap wajib diisi.',
-                    'min_length' => 'Nama lengkap minimal {param} karakter.'
+                    'min_length' => 'Nama lengkap minimal {param} karakter.',
+                    'is_unique' => 'Nama ini sudah terdaftar.'
                 ]
             ],
             'email' => [
