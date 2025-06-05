@@ -107,6 +107,7 @@ class AuthController extends BaseController
                 'errors' => [
                     'required' => 'Nama lengkap wajib diisi.',
                     'min_length' => 'Nama lengkap minimal {param} karakter.',
+                    'max_length' => 'Nama lengkap maksimal {param} karakter.',
                     'is_unique' => 'Nama ini sudah terdaftar.'
                 ]
             ],
