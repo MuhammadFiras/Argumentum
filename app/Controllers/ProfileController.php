@@ -83,7 +83,6 @@ class ProfileController extends BaseController
         $data = [
             'title' => 'Edit Profil Saya',
             'user_data' => $user,
-            'validation' => \Config\Services::validation()
         ];
         return view('profile/edit_profile', $data); // Kita akan buat view ini
     }
@@ -98,34 +97,53 @@ class ProfileController extends BaseController
         }
 
         $userId = session()->get('user_id');
+        $user = $this->userModel->find($userId);
 
         // Aturan Validasi
         $rules = [
             'nama_lengkap' => [
-                'rules' => 'required',
+                'rules' => 'required|min_length[3]|max_length[100]',
                 'errors' => [
                     'required' => 'Nama lengkap wajib diisi.',
+                    'min_length' => 'Nama lengkap minimal {param} karakter.',
+                    'max_length' => 'Nama lengkap maksimal {param} karakter.',
                 ]
             ],
-            'description' => 'permit_empty|max_length[500]', 
-            'credentials' => 'permit_empty|max_length[250]',
-            'linkedin_url' => 'permit_empty|max_length[255]',
-            'instagram_url' => 'permit_empty|max_length[255]',
-            // 'photo_profile' => [ // Validasi untuk upload gambar (jika diimplementasikan)
-            //     'rules' => 'uploaded[photo_profile]|max_size[photo_profile,1024]|is_image[photo_profile]|mime_in[photo_profile,image/jpg,image/jpeg,image/png]',
-            //     'errors' => [ /* ... pesan error upload ... */ ]
-            // ]
+            'description' => 'max_length[500]',
+            'credentials' => 'max_length[250]',
+            'linkedin_url' => 'max_length[255]',
+            'instagram_url' => 'max_length[255]',
+            'photo_profile' => [
+                'rules' => 'max_size[photo_profile,1024]|is_image[photo_profile]|mime_in[photo_profile,image/png,image/jpeg,image/jpg]',
+                'errors' => [
+                    'max_size' => 'Ukuran foto tidak boleh lebih dari 1 MB.',
+                    'is_image' => 'Format file tidak valid. Hanya izinkan PNG, JPG, JPEG.',
+                    'mime_in'  => 'Format file tidak valid. Hanya izinkan PNG, JPG, JPEG.'
+                ]
+            ]
         ];
 
-        // Tambahkan aturan validasi email jika email diizinkan untuk diubah
-        // if ($this->request->getPost('email') != $user['email']) {
-        //     $rules['email'] = 'required|valid_email|is_unique[users.email,id_user,'.$userId.']';
-        // } else {
-        //     $rules['email'] = 'required|valid_email';
-        // }
-
         if (!$this->validate($rules)) {
-            return redirect()->to('/profile/edit')->withInput()->with('validation', $this->validator);
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        $photoProfileName = $user['photo_profile']; // Nama file asal
+        $photoProfileFile = $this->request->getFile('photo_profile');
+        // dd($photoProfileFile);
+
+        // Cek apakah ada file yang diunggah, valid, dan belum dipindahkan
+        if ($photoProfileFile && $photoProfileFile->isValid() && !$photoProfileFile->hasMoved()) {
+            $newName = $photoProfileFile->getRandomName(); // Buat nama file acak yang aman
+
+            // Tentukan path tujuan
+            $targetPath = FCPATH . 'assets/images/profiles';
+
+            if ($photoProfileFile->move($targetPath, $newName)) {
+                if($photoProfileName != 'default.jpg'){
+                    unlink($targetPath . '/' . $photoProfileName);
+                }
+                $photoProfileName = $newName; // Gunakan nama baru jika berhasil dipindah
+            }
         }
 
         $updateData = [
@@ -134,6 +152,7 @@ class ProfileController extends BaseController
             'credentials'   => $this->request->getPost('credentials'),
             'linkedin_url'  => $this->request->getPost('linkedin_url'),
             'instagram_url' => $this->request->getPost('instagram_url'),
+            'photo_profile' => $photoProfileName
         ];
 
         // Handle Upload Foto Profil (Jika ada field input 'photo_profile')

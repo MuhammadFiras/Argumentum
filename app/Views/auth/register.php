@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar - Argumentum</title>
+    <title><?= $title; ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -17,60 +18,76 @@
             min-height: 100vh;
             margin: 0;
             font-family: sans-serif;
-            padding: 20px 0; /* Tambahkan padding untuk scroll jika konten panjang */
+            padding: 20px 0;
+            /* Tambahkan padding untuk scroll jika konten panjang */
         }
+
         .register-container {
             background-color: rgba(255, 255, 255, 0.95);
-            padding: 30px 40px; /* Sesuaikan padding */
+            padding: 30px 40px;
+            /* Sesuaikan padding */
             border-radius: 10px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             width: 100%;
-            max-width: 550px; /* Lebarkan sedikit untuk form registrasi */
+            max-width: 550px;
+            /* Lebarkan sedikit untuk form registrasi */
         }
+
         .register-container h2 {
             text-align: center;
             margin-bottom: 10px;
-            color: #B92B27; /* Warna merah khas Quora */
+            color: #B92B27;
+            /* Warna merah khas Quora */
             font-weight: bold;
         }
+
         .register-container p.tagline {
             text-align: center;
             margin-bottom: 25px;
             color: #666;
         }
+
         .form-control:focus {
             border-color: #B92B27;
             box-shadow: 0 0 0 0.25rem rgba(185, 43, 39, 0.25);
         }
+
         .btn-register {
             background-color: #B92B27;
             border-color: #B92B27;
             color: white;
             font-weight: bold;
         }
+
         .btn-register:hover {
             background-color: #a32622;
             border-color: #a32622;
         }
+
         .btn-link-custom {
             color: #B92B27;
             text-decoration: none;
         }
+
         .btn-link-custom:hover {
             text-decoration: underline;
         }
+
         .footer-text {
             font-size: 0.85rem;
             color: #777;
             text-align: center;
             margin-top: 20px;
         }
+
         /* Untuk pesan error */
         .invalid-feedback {
-            display: block; /* Pastikan pesan error selalu terlihat jika ada */
+            display: block;
+            /* Pastikan pesan error selalu terlihat jika ada */
         }
     </style>
 </head>
+
 <body>
     <div class="register-container">
         <h2>Argumentum</h2>
@@ -82,48 +99,50 @@
             </div>
         <?php endif; ?>
 
-        <form id="registerForm" action="<?= site_url('auth/processRegister') ?>" method="post">            <?= csrf_field() ?> <div class="mb-3">
+        <form id="registerForm" action="<?= site_url('auth/processRegister') ?>" method="post" enctype="multipart/form-data"> <?= csrf_field() ?>
+            <div class="mb-3">
                 <label for="nama_lengkap" class="form-label">Nama Lengkap</label>
-                <input type="text" class="form-control" id="nama_lengkap" name="nama_lengkap" value="<?= old('nama_lengkap') ?>" required>
-                <?php if (session()->getFlashdata('errors') && isset(session()->getFlashdata('errors')['nama_lengkap'])): ?>
-                    <div class="invalid-feedback">
-                        <?= session()->getFlashdata('errors')['nama_lengkap'] ?>
-                    </div>
-                <?php endif; ?>
-                <div id="namaLengkapError" class="invalid-feedback" style="display:none;"></div>
+                <input type="text" class="form-control <?= (isset(session()->getFlashdata('errors')['nama_lengkap'])) ? 'is-invalid' : ''; ?>" id="nama_lengkap" name="nama_lengkap" value="<?= old('nama_lengkap') ?>" required>
+
+                <div class="invalid-feedback">
+                    <?= (isset(session()->getFlashdata('errors')['nama_lengkap'])) ? session()->getFlashdata('errors')['nama_lengkap'] : ''; ?>
+                </div>
             </div>
 
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" name="email" value="<?= old('email') ?>" required>
-                <?php if (session()->getFlashdata('errors') && isset(session()->getFlashdata('errors')['email'])): ?>
-                    <div class="invalid-feedback">
-                        <?= session()->getFlashdata('errors')['email'] ?>
-                    </div>
-                <?php endif; ?>
-                <div id="emailError" class="invalid-feedback" style="display:none;"></div>
+                <input type="email" class="form-control <?= (isset(session()->getFlashdata('errors')['email'])) ? 'is-invalid' : ''; ?>" id="email" name="email" value="<?= old('email') ?>" required>
+
+                <div class="invalid-feedback">
+                    <?= (isset(session()->getFlashdata('errors')['email'])) ? session()->getFlashdata('errors')['email'] : ''; ?>
+                </div>
             </div>
 
             <div class="mb-3">
                 <label for="password" class="form-label">Kata Sandi</label>
-                <input type="password" class="form-control" id="password" name="password" required>
-                <?php if (session()->getFlashdata('errors') && isset(session()->getFlashdata('errors')['password'])): ?>
-                    <div class="invalid-feedback">
-                        <?= session()->getFlashdata('errors')['password'] ?>
-                    </div>
-                <?php endif; ?>
-                <div id="passwordError" class="invalid-feedback" style="display:none;"></div>
+                <input type="password" class="form-control <?= (isset(session()->getFlashdata('errors')['password'])) ? 'is-invalid' : ''; ?>" id="password" name="password" required>
+
+                <div class="invalid-feedback">
+                    <?= (isset(session()->getFlashdata('errors')['password'])) ? session()->getFlashdata('errors')['password'] : ''; ?>
+                </div>
             </div>
 
             <div class="mb-3">
                 <label for="confirm_password" class="form-label">Konfirmasi Kata Sandi</label>
-                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
-                <?php if (session()->getFlashdata('errors') && isset(session()->getFlashdata('errors')['confirm_password'])): ?>
-                    <div class="invalid-feedback">
-                        <?= session()->getFlashdata('errors')['confirm_password'] ?>
-                    </div>
-                <?php endif; ?>
-                <div id="confirmPasswordError" class="invalid-feedback" style="display:none;"></div>
+                <input type="password" class="form-control <?= (isset(session()->getFlashdata('errors')['confirm_password'])) ? 'is-invalid' : ''; ?>" id="confirm_password" name="confirm_password" required>
+
+                <div class="invalid-feedback">
+                    <?= (isset(session()->getFlashdata('errors')['confirm_password'])) ? session()->getFlashdata('errors')['confirm_password'] : ''; ?>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="photo_profile" class="form-label">Tambah Foto Profil (opsional)</label>
+                <input class="form-control <?= (isset(session()->getFlashdata('errors')['photo_profile'])) ? 'is-invalid' : ''; ?>" type="file" id="photo_profile" name="photo_profile">
+
+                <div class="invalid-feedback">
+                    <?= (isset(session()->getFlashdata('errors')['photo_profile'])) ? session()->getFlashdata('errors')['photo_profile'] : ''; ?>
+                </div>
             </div>
 
             <button type="submit" class="btn btn-register w-100">Daftar</button>
@@ -220,4 +239,5 @@
         });
     </script>
 </body>
+
 </html>
