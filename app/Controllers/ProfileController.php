@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\UserModel;
 use App\Models\QuestionModel; // Untuk menampilkan pertanyaan user
 use App\Models\AnswerModel;   // Untuk menampilkan jawaban user (opsional untuk sekarang)
+use CodeIgniter\Validation\StrictRules\Rules;
 
 class ProfileController extends BaseController
 {
@@ -106,13 +107,24 @@ class ProfileController extends BaseController
                 'errors' => [
                     'required' => 'Nama lengkap wajib diisi.',
                     'min_length' => 'Nama lengkap minimal {param} karakter.',
-                    'max_length' => 'Nama lengkap maksimal {param} karakter.',
-                ]
+                    'max_length' => 'Nama lengkap maksimal {param} karakter.',                ]
             ],
             'description' => 'max_length[500]',
             'credentials' => 'max_length[250]',
-            'linkedin_url' => 'max_length[255]',
-            'instagram_url' => 'max_length[255]',
+            'linkedin_url' => [
+                'rules' => 'max_length[255]|valid_url',
+                'errors' => [
+                    'max_length' => "Karakter dalam Link melebihi 255 karakter",
+                    'valid_url' => 'Link tidak valid',
+                ]
+            ],
+            'instagram_url' => [
+                'rules' => 'max_length[255]|valid_url',
+                'errors' => [
+                    'max_length' => "Karakter dalam Link melebihi 255 karakter",
+                    'valid_url' => 'Link tidak valid',
+                ]
+            ],
             'photo_profile' => [
                 'rules' => 'max_size[photo_profile,1024]|is_image[photo_profile]|mime_in[photo_profile,image/png,image/jpeg,image/jpg]',
                 'errors' => [
@@ -154,18 +166,6 @@ class ProfileController extends BaseController
             'instagram_url' => $this->request->getPost('instagram_url'),
             'photo_profile' => $photoProfileName
         ];
-
-        // Handle Upload Foto Profil (Jika ada field input 'photo_profile')
-        // $imgFile = $this->request->getFile('photo_profile');
-        // if ($imgFile && $imgFile->isValid() && !$imgFile->hasMoved()) {
-        //     $newName = $imgFile->getRandomName();
-        //     $imgFile->move(WRITEPATH . '../public/assets/images/profiles/', $newName); // Sesuaikan path
-        //     $updateData['photo_profile'] = $newName;
-        //     // Hapus foto lama jika bukan default.jpg
-        //     if ($user['photo_profile'] && $user['photo_profile'] != 'default.jpg') {
-        //         @unlink(WRITEPATH . '../public/assets/images/profiles/' . $user['photo_profile']);
-        //     }
-        // }
 
         if ($this->userModel->update($userId, $updateData)) {
             // Update session jika nama lengkap berubah
