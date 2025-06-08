@@ -10,10 +10,10 @@ $routes->get('/', 'Home::index');
 
 // Authentication Routes
 $routes->get('/login', 'AuthController::login');
-$routes->post('auth/processLogin', 'AuthController::processLogin');
-$routes->get('auth/register', 'AuthController::register');
-$routes->post('auth/processRegister', 'AuthController::processRegister');
-$routes->get('auth/login', 'AuthController::login');
+$routes->post('/auth/processLogin', 'AuthController::processLogin');
+$routes->get('/auth/register', 'AuthController::register');
+$routes->post('/auth/processRegister', 'AuthController::processRegister');
+$routes->get('/auth/login', 'AuthController::login');
 $routes->get('/logout', 'AuthController::logout');
 
 // Routes untuk Pertanyaan
