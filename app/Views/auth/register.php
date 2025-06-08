@@ -1,11 +1,11 @@
-<?= $this->extend('layout/auth_layout') ?> 
+<?= $this->extend('layout/auth_layout') ?>
 
 <?= $this->section('title') ?>
-    Daftar - Argumentum
+Daftar - Argumentum
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<div class="register-container">
+<div class="register-container" data-aos="fade-up">
     <h2>Argumentum</h2>
     <p class="tagline">Bergabunglah dan mulai berbagi pengetahuan</p>
 
@@ -17,10 +17,16 @@
 
     <form id="registerForm" action="<?= site_url('auth/processRegister') ?>" method="post" enctype="multipart/form-data">
         <?= csrf_field() ?>
-        
+
         <div class="mb-3">
             <label for="nama_lengkap" class="form-label">Nama Lengkap</label>
-            <input type="text" class="form-control <?= (isset(session()->getFlashdata('errors')['nama_lengkap'])) ? 'is-invalid' : ''; ?>" id="nama_lengkap" name="nama_lengkap" value="<?= old('nama_lengkap') ?>" required>
+            <input
+                type="text"
+                class="form-control <?= (isset(session()->getFlashdata('errors')['nama_lengkap'])) ? 'is-invalid' : ''; ?>"
+                id="nama_lengkap"
+                name="nama_lengkap"
+                value="<?= old('nama_lengkap') ?>"
+                required>
             <div class="invalid-feedback">
                 <?= (isset(session()->getFlashdata('errors')['nama_lengkap'])) ? session()->getFlashdata('errors')['nama_lengkap'] : ''; ?>
             </div>
@@ -28,7 +34,13 @@
 
         <div class="mb-3">
             <label for="email" class="form-label">Email</label>
-            <input type="email" class="form-control <?= (isset(session()->getFlashdata('errors')['email'])) ? 'is-invalid' : ''; ?>" id="email" name="email" value="<?= old('email') ?>" required>
+            <input
+                type="email"
+                class="form-control <?= (isset(session()->getFlashdata('errors')['email'])) ? 'is-invalid' : ''; ?>"
+                id="email"
+                name="email"
+                value="<?= old('email') ?>"
+                required>
             <div class="invalid-feedback">
                 <?= (isset(session()->getFlashdata('errors')['email'])) ? session()->getFlashdata('errors')['email'] : ''; ?>
             </div>
@@ -36,7 +48,12 @@
 
         <div class="mb-3">
             <label for="password" class="form-label">Kata Sandi</label>
-            <input type="password" class="form-control <?= (isset(session()->getFlashdata('errors')['password'])) ? 'is-invalid' : ''; ?>" id="password" name="password" required>
+            <input
+                type="password"
+                class="form-control <?= (isset(session()->getFlashdata('errors')['password'])) ? 'is-invalid' : ''; ?>"
+                id="password"
+                name="password"
+                required>
             <div class="invalid-feedback">
                 <?= (isset(session()->getFlashdata('errors')['password'])) ? session()->getFlashdata('errors')['password'] : ''; ?>
             </div>
@@ -44,20 +61,16 @@
 
         <div class="mb-3">
             <label for="confirm_password" class="form-label">Konfirmasi Kata Sandi</label>
-            <input type="password" class="form-control <?= (isset(session()->getFlashdata('errors')['confirm_password'])) ? 'is-invalid' : ''; ?>" id="confirm_password" name="confirm_password" required>
+            <input
+                type="password"
+                class="form-control <?= (isset(session()->getFlashdata('errors')['confirm_password'])) ? 'is-invalid' : ''; ?>"
+                id="confirm_password"
+                name="confirm_password"
+                required>
             <div class="invalid-feedback">
                 <?= (isset(session()->getFlashdata('errors')['confirm_password'])) ? session()->getFlashdata('errors')['confirm_password'] : ''; ?>
             </div>
         </div>
-
-        <div class="mb-3">
-            <label for="photo_profile" class="form-label">Tambah Foto Profil (opsional)</label>
-            <input class="form-control <?= (isset(session()->getFlashdata('errors')['photo_profile'])) ? 'is-invalid' : ''; ?>" type="file" id="photo_profile" name="photo_profile">
-            <div class="invalid-feedback">
-                <?= (isset(session()->getFlashdata('errors')['photo_profile'])) ? session()->getFlashdata('errors')['photo_profile'] : ''; ?>
-            </div>
-        </div>
-
         <button type="submit" class="btn btn-register w-100">Daftar</button>
     </form>
 

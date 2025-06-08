@@ -1,11 +1,11 @@
 <?= $this->extend('layout/main_layout') ?>
 
 <?= $this->section('title') ?>
-    <?= esc($title ?? 'Detail Pertanyaan') ?>
+<?= esc($title ?? 'Detail Pertanyaan') ?>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<div class="container mt-4">
+<div class="container mt-4" data-aos="fade-up">
     <?php if (session()->getFlashdata('success')): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <?= session()->getFlashdata('success') ?>
@@ -24,12 +24,12 @@
             <h1><?= esc($question['title']) ?></h1>
             <div class="user-info mb-2 d-flex align-items-center">
                 <?php
-                    $question_user_photo_url = base_url('default.jpg');
-                    if (!empty($question['user_photo']) && $question['user_photo'] != 'default.jpg') {
-                        $question_user_photo_url = base_url('assets/images/profiles/' . esc($question['user_photo']));
-                    }
+                $question_user_photo_url = base_url('default.jpg');
+                if (!empty($question['user_photo']) && $question['user_photo'] != 'default.jpg') {
+                    $question_user_photo_url = base_url('assets/images/profiles/' . esc($question['user_photo']));
+                }
                 ?>
-                 <a href="<?= site_url('profile/' . esc($question['id_user'])) ?>" class="d-flex align-items-center text-decoration-none text-dark">
+                <a href="<?= site_url('profile/' . esc($question['id_user'])) ?>" class="d-flex align-items-center text-decoration-none text-dark">
                     <img src="<?= $question_user_photo_url ?>" alt="<?= esc($question['user_nama']) ?>" width="30" height="30" class="rounded-circle me-2">
                     <span><?= esc($question['user_nama']) ?></span>
                 </a>
@@ -39,11 +39,11 @@
             <div class="question-content">
                 <?= nl2br(esc($question['content'])) ?>
             </div>
-            
+
             <?php if (session()->get('isLoggedIn')): ?>
                 <?php
-                    $isOwner = (session()->get('user_id') == $question['id_user']);
-                    $isAdmin = (session()->get('role') == 'admin');
+                $isOwner = (session()->get('user_id') == $question['id_user']);
+                $isAdmin = (session()->get('role') == 'admin');
                 ?>
                 <div class="mt-3">
                     <?php if ($isOwner): ?>
@@ -76,7 +76,9 @@
                                 </div>
                             <?php endif; ?>
                         </div>
-                        <button type="submit" class="btn btn-submit-answer">Kirim Jawaban</button>
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="submit" class="btn btn-submit-answer">Kirim Jawaban</button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -84,18 +86,17 @@
             <p><a href="<?= site_url('login?redirect=' . urlencode(current_url())) ?>">Masuk</a> untuk menjawab pertanyaan ini.</p>
         <?php endif; ?>
 
-
         <?php if (!empty($answers)): ?>
             <?php foreach ($answers as $answer): ?>
                 <div class="answer-card <?= $answer['is_best_answer'] ? 'best-answer-card' : '' ?>" id="answer-<?= esc($answer['id_answer']) ?>">
                     <div class="d-flex justify-content-between align-items-start">
                         <div class="user-info d-flex align-items-center">
-                             <a href="<?= site_url('profile/' . esc($answer['id_user'])) ?>" class="text-decoration-none text-dark">
+                            <a href="<?= site_url('profile/' . esc($answer['id_user'])) ?>" class="text-decoration-none text-dark">
                                 <?php
-                                    $answer_user_photo_url = base_url('default.jpg');
-                                    if (!empty($answer['user_photo']) && $answer['user_photo'] != 'default.jpg') {
-                                        $answer_user_photo_url = base_url('assets/images/profiles/' . esc($answer['user_photo']));
-                                    }
+                                $answer_user_photo_url = base_url('default.jpg');
+                                if (!empty($answer['user_photo']) && $answer['user_photo'] != 'default.jpg') {
+                                    $answer_user_photo_url = base_url('assets/images/profiles/' . esc($answer['user_photo']));
+                                }
                                 ?>
                                 <img src="<?= $answer_user_photo_url ?>" alt="<?= esc($answer['user_nama']) ?>" width="25" height="25" class="rounded-circle me-2">
                             </a>
@@ -114,7 +115,8 @@
                     </div>
 
                     <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
-                        <div> <span class="rating-summary-text">
+                        <div>
+                            <span class="rating-summary-text">
                                 Rating:
                                 <strong id="avg-rating-<?= esc($answer['id_answer']) ?>">
                                     <?= number_format($answer['rating_stats']['average'], 1) ?>
@@ -133,14 +135,15 @@
                                 <div id="rating-feedback-message-<?= esc($answer['id_answer']) ?>" class="rating-feedback-message"></div>
                             <?php endif; ?>
                         </div>
-                        
-                        <div> <?php if (session()->get('isLoggedIn')): ?>
+
+                        <div>
+                            <?php if (session()->get('isLoggedIn')): ?>
                                 <?php
-                                    $isAnswerOwner = (session()->get('user_id') == $answer['id_user']);
-                                    $isAdmin = (session()->get('role') == 'admin');
-                                    $isQuestionOwner = (session()->get('user_id') == $question['id_user']);
+                                $isAnswerOwner = (session()->get('user_id') == $answer['id_user']);
+                                $isAdmin = (session()->get('role') == 'admin');
+                                $isQuestionOwner = (session()->get('user_id') == $question['id_user']);
                                 ?>
-                                
+
                                 <?php if ($isQuestionOwner): ?>
                                     <form action="<?= site_url('answer/toggle-best/' . $answer['id_answer']) ?>" method="post" class="d-inline ms-2">
                                         <?= csrf_field() ?>
@@ -151,7 +154,7 @@
                                         <?php endif; ?>
                                     </form>
                                 <?php endif; ?>
-                                
+
                                 <?php if ($isAnswerOwner): ?>
                                     <a href="<?= site_url('answer/edit/' . $answer['id_answer']) ?>" class="btn btn-sm btn-outline-secondary me-2">Edit</a>
                                 <?php endif; ?>
@@ -173,7 +176,7 @@
 
     <?php else: ?>
         <div class="alert alert-warning" role="alert">
-          Pertanyaan tidak ditemukan.
+            Pertanyaan tidak ditemukan.
         </div>
     <?php endif; ?>
 </div>

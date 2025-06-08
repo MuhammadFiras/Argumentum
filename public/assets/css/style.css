@@ -42,6 +42,7 @@ body {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   width: 100%;
   max-width: 450px;
+  margin-bottom: 4rem;
 }
 .register-container {
   max-width: 550px;
@@ -91,6 +92,19 @@ body {
 }
 
 /* == HALAMAN PERTANYAAN (HOME & ANSWER) == */
+.question-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 20px rgba(185, 43, 39, 0.25);
+}
+
+.question-title a:hover {
+  color: #a32622 !important;
+}
+
+.user-info {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
 
 .title-home {
   color: #b92b27;
@@ -99,6 +113,8 @@ body {
 .question-header,
 .answer-card {
   background-color: white;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
   padding: 15px;
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -113,9 +129,7 @@ body {
   color: #212529;
   font-weight: bold;
 }
-.question-title a:hover {
-  color: #b92b27;
-}
+
 .question-content {
   font-size: 1.1em;
   line-height: 1.7;

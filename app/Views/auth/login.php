@@ -5,7 +5,7 @@ Login - Argumentum
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<div class="login-container">
+<div class="login-container" data-aos="fade-up">
     <h2>Argumentum</h2>
     <p class="tagline">Tempat berbagi pengetahuan dan memahami dunia lebih baik</p>
 
@@ -26,14 +26,31 @@ Login - Argumentum
 
         <div class="mb-3">
             <label for="email" class="form-label">Email</label>
-            <input type="email" class="form-control <?= (isset(session()->getFlashdata('errors')['email'])) ? 'is-invalid' : ''; ?>" id="email" name="email" value="<?= old('email') ?>" required>
-            <div class="invalid-feedback"><?= (isset(session()->getFlashdata('errors')['email'])) ? session()->getFlashdata('errors')['email'] : ''; ?></div>
+            <input 
+                type="email" 
+                class="form-control <?= (isset(session()->getFlashdata('errors')['email'])) ? 'is-invalid' : ''; ?>" 
+                id="email" 
+                name="email" 
+                value="<?= old('email') ?>" 
+                required
+            >
+            <div class="invalid-feedback">
+                <?= (isset(session()->getFlashdata('errors')['email'])) ? session()->getFlashdata('errors')['email'] : ''; ?>
+            </div>
         </div>
 
         <div class="mb-4">
             <label for="password" class="form-label">Kata Sandi</label>
-            <input type="password" class="form-control <?= (isset(session()->getFlashdata('errors')['password'])) ? 'is-invalid' : ''; ?>" id="password" name="password" required>
-            <div class="invalid-feedback"><?= (isset(session()->getFlashdata('errors')['password'])) ? session()->getFlashdata('errors')['password'] : ''; ?></div>
+            <input 
+                type="password" 
+                class="form-control <?= (isset(session()->getFlashdata('errors')['password'])) ? 'is-invalid' : ''; ?>" 
+                id="password" 
+                name="password" 
+                required
+            >
+            <div class="invalid-feedback">
+                <?= (isset(session()->getFlashdata('errors')['password'])) ? session()->getFlashdata('errors')['password'] : ''; ?>
+            </div>
         </div>
 
         <button type="submit" class="btn btn-login w-100">Masuk</button>

@@ -7,14 +7,20 @@
 <?= $this->section('content') ?>
 <div class="container mt-4 mb-5">
     <?php if (session()->getFlashdata('success')): ?>
-        <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>
+        <div class="alert alert-success alert-dismissible fade show" role="alert" data-aos="fade-down">
+            <?= session()->getFlashdata('success') ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
     <?php endif; ?>
     <?php if (session()->getFlashdata('error')): ?>
-        <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" data-aos="fade-down">
+            <?= session()->getFlashdata('error') ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
     <?php endif; ?>
 
     <?php if (!empty($user_profile)): ?>
-        <div class="profile-header text-center text-md-start">
+        <div class="profile-header text-center text-md-start" data-aos="fade-right"><!-- animasi fade-right -->
             <div class="row align-items-center">
                 <div class="col-md-3 text-center mb-3 mb-md-0">
                     <?php
@@ -23,7 +29,7 @@
                             $photo_url = base_url('assets/images/profiles/' . esc($user_profile['photo_profile']));
                         }
                     ?>
-                    <img src="<?= $photo_url ?>" alt="Foto Profil <?= esc($user_profile['nama_lengkap']) ?>" class="profile-picture">
+                    <img src="<?= $photo_url ?>" alt="Foto Profil <?= esc($user_profile['nama_lengkap']) ?>" class="profile-picture shadow-sm rounded-circle">
                 </div>
                 <div class="col-md-9">
                     <h1 class="profile-name"><?= esc($user_profile['nama_lengkap']) ?></h1>
@@ -50,16 +56,20 @@
 
         <div class="row mt-4">
             <div class="col-md-12">
-                <ul class="nav nav-tabs mb-3" id="profileTab" role="tablist">
+                <ul class="nav nav-tabs mb-3" id="profileTab" role="tablist" data-aos="fade-up"><!-- animasi fade-up -->
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="questions-tab" data-bs-toggle="tab" data-bs-target="#questions-content" type="button" role="tab" aria-controls="questions-content" aria-selected="true">Pertanyaan (<?= count($questions_by_user) ?>)</button>
+                        <button class="nav-link active" id="questions-tab" data-bs-toggle="tab" data-bs-target="#questions-content" type="button" role="tab" aria-controls="questions-content" aria-selected="true">
+                            Pertanyaan (<?= count($questions_by_user) ?>)
+                        </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="answers-tab" data-bs-toggle="tab" data-bs-target="#answers-content" type="button" role="tab" aria-controls="answers-content" aria-selected="false">Jawaban (<?= count($answers_by_user) ?>)</button>
+                        <button class="nav-link" id="answers-tab" data-bs-toggle="tab" data-bs-target="#answers-content" type="button" role="tab" aria-controls="answers-content" aria-selected="false">
+                            Jawaban (<?= count($answers_by_user) ?>)
+                        </button>
                     </li>
                 </ul>
                 <div class="tab-content" id="profileTabContent">
-                    <div class="tab-pane fade show active content-section" id="questions-content" role="tabpanel" aria-labelledby="questions-tab">
+                    <div class="tab-pane fade show active content-section" id="questions-content" role="tabpanel" aria-labelledby="questions-tab" data-aos="fade-up"><!-- animasi fade-up -->
                         <h5>Pertanyaan Dibuat</h5>
                         <?php if (!empty($questions_by_user)): ?>
                             <ul class="list-unstyled">
@@ -76,7 +86,7 @@
                             <p class="text-muted"><?= ($is_own_profile) ? 'Anda belum membuat pertanyaan.' : 'Pengguna ini belum membuat pertanyaan.' ?></p>
                         <?php endif; ?>
                     </div>
-                    <div class="tab-pane fade content-section" id="answers-content" role="tabpanel" aria-labelledby="answers-tab">
+                    <div class="tab-pane fade content-section" id="answers-content" role="tabpanel" aria-labelledby="answers-tab" data-aos="fade-up"><!-- animasi fade-up -->
                         <h5>Jawaban Diberikan</h5>
                         <?php if (!empty($answers_by_user)): ?>
                             <ul class="list-unstyled">
@@ -101,7 +111,7 @@
         </div>
 
     <?php else: ?>
-        <p class="alert alert-warning">Profil pengguna tidak dapat ditemukan.</p>
+        <p class="alert alert-warning" data-aos="fade-in">Profil pengguna tidak dapat ditemukan.</p>
     <?php endif; ?>
 </div>
 <?= $this->endSection() ?>

@@ -7,37 +7,30 @@
 <?= $this->section('content') ?>
 <div class="container">
     <div class="form-container">
-        <h2><?= esc($title) ?></h2>
-        <hr>
-
-        <?php if (session()->getFlashdata('success')): ?>
-            <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>
-        <?php endif; ?>
-        <?php if (session()->getFlashdata('error')): ?>
-            <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
-        <?php endif; ?>
-
         <?php if (!empty($user_data)): ?>
+            <div class="profile-header text-center mb-4">
+                <?php
+                $photo_url = base_url('default.jpg');
+                if (!empty($user_data['photo_profile']) && $user_data['photo_profile'] != 'default.jpg') {
+                    $photo_url = base_url('assets/images/profiles/' . esc($user_data['photo_profile']));
+                }
+                ?>
+                <img src="<?= $photo_url ?>" alt="Foto Profil <?= esc($user_data['nama_lengkap']) ?>" class="profile-picture mx-auto">
+
+                <h2 class="profile-name mt-3"><?= esc($user_data['nama_lengkap']) ?></h2>
+                <p class="profile-credentials"><?= esc($user_data['credentials'] ?? '') ?></p>
+            </div>
+
             <form action="<?= site_url('/profile/update') ?>" method="post" enctype="multipart/form-data">
                 <?= csrf_field() ?>
                 <input type="hidden" name="_method" value="POST">
 
-                <div class="text-center mb-3">
-                    <?php
-                    $photo_url = base_url('default.jpg');
-                    if (!empty($user_data['photo_profile']) && $user_data['photo_profile'] != 'default.jpg') {
-                        $photo_url = base_url('assets/images/profiles/' . esc($user_data['photo_profile']));
-                    }
-                    ?>
-                    <img src="<?= $photo_url ?>" alt="Foto Profil <?= esc($user_data['nama_lengkap']) ?>" class="profile-picture">
-
-                    <div class="mt-3">
-                        <label for="photo_profile" class="btn btn-outline-secondary">Ganti Foto Profil</label>
-                        <input type="file" id="photo_profile" name="photo_profile" class="d-none">
-                        <small class="d-block text-muted mt-1">Maks 1MB (jpg, jpeg, png)</small>
-                    </div>
+                <div class="mb-3 text-center">
+                    <label for="photo_profile" class="btn btn-outline-secondary">Ganti Foto Profil</label>
+                    <input type="file" id="photo_profile" name="photo_profile" class="d-none">
+                    <small class="d-block text-muted mt-1">Maks 1MB (jpg, jpeg, png)</small>
                     <?php if (session()->getFlashdata('errors') && isset(session()->getFlashdata('errors')['photo_profile'])): ?>
-                        <div class="text-danger mt-1" style="font-size: 0.875em;"><?= isset(session()->getFlashdata('errors')['photo_profile']) ?></div>
+                        <div class="text-danger mt-1" style="font-size: 0.875em;"><?= session()->getFlashdata('errors')['photo_profile'] ?></div>
                     <?php endif; ?>
                 </div>
 
@@ -63,14 +56,12 @@
                     <div class="invalid-feedback"><?= isset(session()->getFlashdata('errors')['credentials']) ? session()->getFlashdata('errors')['credentials'] : '' ?></div>
                 </div>
 
-                <?php //lanjutan getError dibawah 
-                ?>
                 <div class="mb-3">
                     <label for="description" class="form-label">Deskripsi Profil (Bio)</label>
                     <textarea class="form-control <?= isset(session()->getFlashdata('errors')['description']) ? 'is-invalid' : '' ?>"
                         id="description" name="description" rows="4"
                         placeholder="Ceritakan sedikit tentang diri Anda..."><?= old('description', esc($user_data['description'] ?? '')) ?></textarea>
-                    <div class="invalid-feedback"> <?= isset(session()->getFlashdata('errors')['description']) ? session()->getFlashdata('errors')['description'] : '' ?></div>
+                    <div class="invalid-feedback"><?= isset(session()->getFlashdata('errors')['description']) ? session()->getFlashdata('errors')['description'] : '' ?></div>
                 </div>
 
                 <h5 class="mt-4">Link Sosial Media</h5>
@@ -80,8 +71,7 @@
                         id="linkedin_url" name="linkedin_url"
                         value="<?= old('linkedin_url', esc($user_data['linkedin_url'] ?? '')) ?>"
                         placeholder="https://www.linkedin.com/in/usernameanda">
-                    <div class="invalid-feedback"> <?= isset(session()->getFlashdata('errors')['linkedin_url']) ? session()->getFlashdata('errors')['linkedin_url'] : '' ?></div>
-
+                    <div class="invalid-feedback"><?= isset(session()->getFlashdata('errors')['linkedin_url']) ? session()->getFlashdata('errors')['linkedin_url'] : '' ?></div>
                 </div>
 
                 <div class="mb-3">
@@ -90,11 +80,13 @@
                         id="instagram_url" name="instagram_url"
                         value="<?= old('instagram_url', esc($user_data['instagram_url'] ?? '')) ?>"
                         placeholder="https://www.instagram.com/usernameanda">
-                    <div class="invalid-feedback"> <?= isset(session()->getFlashdata('errors')['instagram_url']) ? session()->getFlashdata('errors')['instagram_url'] : '' ?></div>
+                    <div class="invalid-feedback"><?= isset(session()->getFlashdata('errors')['instagram_url']) ? session()->getFlashdata('errors')['instagram_url'] : '' ?></div>
                 </div>
 
-                <button type="submit" class="btn btn-save">Simpan Perubahan</button>
-                <a href="<?= site_url('/profile') ?>" class="btn btn-link">Batal</a>
+                <div class="d-flex justify-content-end mt-4">
+                    <a href="<?= site_url('/profile') ?>" class="btn btn-link">Batal</a>
+                    <button type="submit" class="btn btn-save">Simpan Perubahan</button>
+                </div>
             </form>
         <?php else: ?>
             <div class="alert alert-danger">Data pengguna tidak ditemukan.</div>
