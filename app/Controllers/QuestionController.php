@@ -126,7 +126,7 @@ class QuestionController extends BaseController
         $data = [
             'title' => 'Edit Pertanyaan: ' . esc($question['title']),
             'question' => $question,
-            'validation' => \Config\Services::validation()
+            'validation' => session()->getFlashdata('validation') ?? \Config\Services::validation()
         ];
         return view('questions/edit_question', $data);
     }

@@ -153,7 +153,7 @@ class AnswerController extends BaseController
             'title' => 'Edit Jawaban',
             'answer' => $answer,
             'question' => $question,
-            'validation' => \Config\Services::validation()
+            'validation' => session()->getFlashdata('validation') ?? \Config\Services::validation()
         ];
 
         return view('answers/edit_answer', $data);
