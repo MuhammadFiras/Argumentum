@@ -17,7 +17,6 @@ class UserModel extends Model
                                    'email', 
                                    'password', 
                                    'role', 
-                                   'photo_profile',
                                     'photo_profile',
                                     'description',    
                                     'credentials',     
