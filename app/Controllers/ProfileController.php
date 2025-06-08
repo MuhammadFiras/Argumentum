@@ -110,8 +110,18 @@ class ProfileController extends BaseController
                     'min_length' => 'Nama lengkap minimal {param} karakter.',
                     'max_length' => 'Nama lengkap maksimal {param} karakter.',                ]
             ],
-            'description' => 'max_length[500]',
-            'credentials' => 'max_length[250]',
+            'description' => [
+                'rules' => 'max_length[500]',
+                'errors' => [
+                    'max_length' => 'Deksripsi tidak boleh lebih dari 500 kata',
+                ]
+            ],
+            'credentials' => [
+                'rules' => 'max_length[500]',
+                'errors' => [
+                    'max_length' => 'Kredensial tidak boleh lebih dari 500 kata',
+                ]
+            ],
             'linkedin_url' => [
                 'rules' => 'max_length[255]|valid_url',
                 'errors' => [

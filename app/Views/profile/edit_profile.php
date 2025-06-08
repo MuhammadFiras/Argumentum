@@ -36,8 +36,8 @@
                         <input type="file" id="photo_profile" name="photo_profile" class="d-none">
                         <small class="d-block text-muted mt-1">Maks 1MB (jpg, jpeg, png)</small>
                     </div>
-                     <?php if ($validation->hasError('photo_profile')): ?>
-                        <div class="text-danger mt-1" style="font-size: 0.875em;"><?= $validation->getError('photo_profile') ?></div>
+                     <?php if (session()->getFlashdata('errors') && isset(session()->getFlashdata('errors')['photo_profile'])): ?>
+                        <div class="text-danger mt-1" style="font-size: 0.875em;"><?= isset(session()->getFlashdata('errors')['photo_profile']) ?></div>
                     <?php endif; ?>
                 </div>
 
@@ -46,8 +46,8 @@
                     <input type="text" class="form-control <?= $validation->hasError('nama_lengkap') ? 'is-invalid' : '' ?>"
                            id="nama_lengkap" name="nama_lengkap"
                            value="<?= old('nama_lengkap', esc($user_data['nama_lengkap'])) ?>" required>
-                    <?php if ($validation->hasError('nama_lengkap')): ?>
-                        <div class="invalid-feedback"><?= $validation->getError('nama_lengkap') ?></div>
+                    <?php if (session()->getFlashdata('errors') && isset(session()->getFlashdata('errors')['nama_lengkap'])): ?>
+                        <div class="invalid-feedback"><?= session()->getFlashdata('errors')['nama_lengkap'] ?></div>
                     <?php endif; ?>
                 </div>
 
@@ -62,8 +62,8 @@
                            id="credentials" name="credentials"
                            value="<?= old('credentials', esc($user_data['credentials'] ?? '')) ?>"
                            placeholder="Contoh: Mahasiswa di Univ. X, Web Developer">
-                    <?php if ($validation->hasError('credentials')): ?>
-                        <div class="invalid-feedback"><?= $validation->getError('credentials') ?></div>
+                    <?php if (session()->getFlashdata('errors') && isset(session()->getFlashdata('errors')['credentials'])): ?>
+                        <div class="invalid-feedback"><?= session()->getFlashdata('errors')['credentials'] ?></div>
                     <?php endif; ?>
                 </div>
 

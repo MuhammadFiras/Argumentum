@@ -20,8 +20,6 @@ class QuestionController extends BaseController // Pastikan nama class adalah Qu
         $this->answerRatingModel = new AnswerRatingModel();
     }
 
-    // ... (method ask(), create(), view(), edit(), update() tetap sama seperti sebelumnya) ...
-    // Contoh method view() dari sebelumnya untuk konteks:
     public function view($slug = null)
     {
         if ($slug === null) {
