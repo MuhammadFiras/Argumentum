@@ -3,8 +3,8 @@
 namespace App\Controllers;
 
 use App\Models\UserModel;
-use App\Models\QuestionModel; // Untuk menampilkan pertanyaan user
-use App\Models\AnswerModel;   // Untuk menampilkan jawaban user (opsional untuk sekarang)
+use App\Models\QuestionModel;
+use App\Models\AnswerModel;
 use CodeIgniter\Validation\StrictRules\Rules;
 
 class ProfileController extends BaseController
@@ -21,18 +21,12 @@ class ProfileController extends BaseController
         $this->answerModel = new AnswerModel();
     }
 
-    /**
-     * Menampilkan halaman profil pengguna.
-     * Jika $id_user null, tampilkan profil user yang login.
-     * Jika $id_user ada, tampilkan profil user dengan ID tersebut.
-     */
     public function view($id_user = null)
     {
         $targetUserId = $id_user;
         $isOwnProfile = false;
 
         if ($targetUserId === null) {
-            // Jika tidak ada ID, coba tampilkan profil user yang login
             if (!session()->get('isLoggedIn')) {
                 return redirect()->to('/login')->with('error', 'Anda harus login untuk melihat profil Anda.');
             }
@@ -43,29 +37,23 @@ class ProfileController extends BaseController
         $user = $this->userModel->find($targetUserId);
 
         if (!$user) {
-            // throw PageNotFoundException::forPageNotFound();
             return redirect()->to('/')->with('error', 'Profil pengguna tidak ditemukan.');
         }
 
-        // Ambil pertanyaan yang dibuat oleh pengguna ini
         $questions = $this->questionModel->getQuestionsByUserId($targetUserId);
-        // Ambil jawaban yang diberikan oleh pengguna ini
-        $answersByUser = $this->answerModel->getAnswersByUserId($targetUserId); // <--- AMBIL JAWABAN
+        $answersByUser = $this->answerModel->getAnswersByUserId($targetUserId);
 
         $data = [
             'title' => 'Profil ' . esc($user['nama_lengkap']),
-            'user_profile' => $user, // Data pengguna yang akan ditampilkan
+            'user_profile' => $user,
             'questions_by_user' => $questions,
-            'answers_by_user' => $answersByUser, // Jika sudah ada
-            'is_own_profile' => $isOwnProfile // Flag untuk menandakan apakah ini profil sendiri
+            'answers_by_user' => $answersByUser,
+            'is_own_profile' => $isOwnProfile
         ];
 
-        return view('profile/view_profile', $data); // Kita akan buat view ini
+        return view('profile/view_profile', $data);
     }
 
-    /**
-     * Menampilkan form untuk mengedit profil user yang sedang login.
-     */
     public function edit()
     {
         if (!session()->get('isLoggedIn')) {
@@ -76,7 +64,6 @@ class ProfileController extends BaseController
         $user = $this->userModel->find($userId);
 
         if (!$user) {
-            // Seharusnya tidak terjadi jika user sudah login dengan benar
             session()->destroy();
             return redirect()->to('/login')->with('error', 'Data pengguna tidak ditemukan. Silakan login kembali.');
         }
@@ -84,31 +71,36 @@ class ProfileController extends BaseController
         $data = [
             'title' => 'Edit Profil Saya',
             'user_data' => $user,
-            'validation' => \Config\Services::validation() // <--- TAMBAHKAN BARIS INI
+            'validation' => \Config\Services::validation()
         ];
-        return view('profile/edit_profile', $data); // Kita akan buat view ini
+        return view('profile/edit_profile', $data);
     }
 
-    /**
-     * Memproses update profil user yang sedang login.
-     */
     public function update()
     {
         if (!session()->get('isLoggedIn')) {
             return redirect()->to('/login')->with('error', 'Sesi Anda telah berakhir. Silakan login kembali.');
         }
-
+        
         $userId = session()->get('user_id');
         $user = $this->userModel->find($userId);
 
-        // Aturan Validasi
+        if($user['nama_lengkap'] == $this->request->getVar('nama_lengkap')){
+            $ruleNamaLengkap = 'required|min_length[3]|max_length[100]';
+        }
+        else{
+            $ruleNamaLengkap = 'required|min_length[3]|max_length[100]|is_unique[users.nama_lengkap]';
+        }
+
         $rules = [
             'nama_lengkap' => [
-                'rules' => 'required|min_length[3]|max_length[100]',
+                'rules' => $ruleNamaLengkap,
                 'errors' => [
                     'required' => 'Nama lengkap wajib diisi.',
                     'min_length' => 'Nama lengkap minimal {param} karakter.',
-                    'max_length' => 'Nama lengkap maksimal {param} karakter.',                ]
+                    'max_length' => 'Nama lengkap maksimal {param} karakter.', 
+                    'is_unique' => 'Nama lengkap sudah ada.'               
+                ]
             ],
             'description' => [
                 'rules' => 'max_length[500]',
@@ -123,14 +115,14 @@ class ProfileController extends BaseController
                 ]
             ],
             'linkedin_url' => [
-                'rules' => 'max_length[255]|valid_url',
+                'rules' => 'permit_empty|max_length[255]|valid_url',
                 'errors' => [
                     'max_length' => "Karakter dalam Link melebihi 255 karakter",
                     'valid_url' => 'Link tidak valid',
                 ]
             ],
             'instagram_url' => [
-                'rules' => 'max_length[255]|valid_url',
+                'rules' => 'permit_empty|max_length[255]|valid_url',
                 'errors' => [
                     'max_length' => "Karakter dalam Link melebihi 255 karakter",
                     'valid_url' => 'Link tidak valid',
@@ -150,22 +142,19 @@ class ProfileController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $photoProfileName = $user['photo_profile']; // Nama file asal
+        $photoProfileName = $user['photo_profile'];
         $photoProfileFile = $this->request->getFile('photo_profile');
-        // dd($photoProfileFile);
 
-        // Cek apakah ada file yang diunggah, valid, dan belum dipindahkan
         if ($photoProfileFile && $photoProfileFile->isValid() && !$photoProfileFile->hasMoved()) {
-            $newName = $photoProfileFile->getRandomName(); // Buat nama file acak yang aman
+            $newName = $photoProfileFile->getRandomName();
 
-            // Tentukan path tujuan
             $targetPath = FCPATH . 'assets/images/profiles';
 
             if ($photoProfileFile->move($targetPath, $newName)) {
                 if($photoProfileName != 'default.jpg' && file_exists($targetPath . '/' . $photoProfileName)){
                     unlink($targetPath . '/' . $photoProfileName);
                 }
-                $photoProfileName = $newName; // Gunakan nama baru jika berhasil dipindah
+                $photoProfileName = $newName;
             }
         }
 
@@ -179,13 +168,9 @@ class ProfileController extends BaseController
         ];
 
         if ($this->userModel->update($userId, $updateData)) {
-            // Update session jika nama lengkap berubah
             if (session()->get('nama_lengkap') != $updateData['nama_lengkap']) {
                 session()->set('nama_lengkap', $updateData['nama_lengkap']);
             }
-            // if (isset($updateData['photo_profile'])) {
-            //     session()->set('photo_profile', $updateData['photo_profile']);
-            // }
             return redirect()->to('/profile')->with('success', 'Profil berhasil diperbarui.');
         } else {
             return redirect()->to('/profile/edit')->withInput()->with('error', 'Gagal memperbarui profil.');

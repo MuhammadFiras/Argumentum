@@ -11,15 +11,15 @@ class Home extends BaseController
     public function __construct()
     {
         $this->questionModel = new QuestionModel();
-        helper(['text', 'date']); // Load helper untuk format tanggal dan teks
+        helper(['text', 'date']);
     }
 
     public function index(): string
     {
         $data = [
             'title' => 'Argumentum',
-            'questions' => $this->questionModel->getQuestionsWithUser() // Ambil semua pertanyaan dengan info user
+            'questions' => $this->questionModel->getQuestionsWithUser()
         ];
-        return view('home', $data); // Kita akan buat view 'home.php'
+        return view('home', $data);
     }
 }

@@ -16,14 +16,12 @@ class AnswerController extends BaseController
     public function __construct()
     {
         $this->answerModel = new AnswerModel();
-        $this->questionModel = new QuestionModel(); // Diperlukan untuk mendapatkan slug pertanyaan saat redirect
+        $this->questionModel = new QuestionModel();
         $this->answerRatingModel = new AnswerRatingModel();
     }
 
-    // ... (method submit(), rateAnswer(), toggleBestAnswer() tetap sama) ...
     public function submit($id_question)
     {
-        // ... (kode submit jawaban yang sudah ada) ...
         if (!session()->get('isLoggedIn')) {
             return redirect()->to('/login')->with('error', 'Anda harus login untuk menjawab.');
         }
@@ -44,8 +42,8 @@ class AnswerController extends BaseController
 
         if (!$this->validate($rules)) {
             return redirect()->to('question/' . $question['slug'])
-                             ->withInput()
-                             ->with('validation_answer', $this->validator);
+                ->withInput()
+                ->with('validation_answer', $this->validator);
         }
 
         $data = [
@@ -63,7 +61,6 @@ class AnswerController extends BaseController
 
     public function rateAnswer(int $id_answer)
     {
-        // ... (kode rate answer yang sudah ada) ...
         if (!session()->get('isLoggedIn')) {
             return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'Anda harus login untuk memberi rating.']);
         }
@@ -77,7 +74,7 @@ class AnswerController extends BaseController
 
         $answerExists = $this->answerModel->find($id_answer);
         if (!$answerExists) {
-             return $this->response->setStatusCode(404)->setJSON(['success' => false, 'message' => 'Jawaban tidak ditemukan.']);
+            return $this->response->setStatusCode(404)->setJSON(['success' => false, 'message' => 'Jawaban tidak ditemukan.']);
         }
 
         if ($answerExists['id_user'] == $userId) {
@@ -105,7 +102,6 @@ class AnswerController extends BaseController
 
     public function toggleBestAnswer(int $id_answer)
     {
-        // ... (kode toggle best answer yang sudah ada) ...
         if (!session()->get('isLoggedIn')) {
             return redirect()->to('/login')->with('error', 'Anda harus login untuk melakukan aksi ini.');
         }
@@ -136,10 +132,6 @@ class AnswerController extends BaseController
         return redirect()->to('question/' . $question['slug'])->with('error', 'Gagal mengubah status jawaban.');
     }
 
-    /**
-     * Menampilkan form untuk mengedit jawaban.
-     * @param int $id_answer
-     */
     public function edit($id_answer)
     {
         $answer = $this->answerModel->find($id_answer);
@@ -150,30 +142,23 @@ class AnswerController extends BaseController
 
         // Otorisasi: Hanya pemilik jawaban yang boleh mengedit
         if (!session()->get('isLoggedIn') || $answer['id_user'] != session()->get('user_id')) {
-            // Di masa depan, tambahkan pengecekan role admin di sini jika perlu
-            // || session()->get('role') != 'admin'
-            $question = $this->questionModel->find($answer['id_question']); // Untuk redirect kembali
+            $question = $this->questionModel->find($answer['id_question']);
             $slug = $question ? $question['slug'] : '';
             return redirect()->to($slug ? 'question/' . $slug : '/')->with('error', 'Anda tidak memiliki hak untuk mengedit jawaban ini.');
         }
 
-        // Ambil data pertanyaan untuk link "Kembali ke Pertanyaan"
         $question = $this->questionModel->find($answer['id_question']);
 
         $data = [
             'title' => 'Edit Jawaban',
             'answer' => $answer,
-            'question' => $question, // Untuk link kembali
+            'question' => $question,
             'validation' => \Config\Services::validation()
         ];
 
-        return view('answers/edit_answer', $data); // Kita akan buat view ini
+        return view('answers/edit_answer', $data);
     }
 
-    /**
-     * Memproses update jawaban.
-     * @param int $id_answer
-     */
     public function update($id_answer)
     {
         $answer = $this->answerModel->find($id_answer);
@@ -191,7 +176,7 @@ class AnswerController extends BaseController
 
         $rules = [
             'answer_content' => [
-                'rules' => 'required', // Validasi dasar, bisa ditambahkan min_length jika mau
+                'rules' => 'required',
                 'errors' => [
                     'required' => 'Isi jawaban tidak boleh kosong.'
                 ]
@@ -210,7 +195,6 @@ class AnswerController extends BaseController
         $question = $this->questionModel->find($answer['id_question']);
         $slug = $question ? $question['slug'] : '';
 
-
         if ($this->answerModel->update($id_answer, $updateData)) {
             return redirect()->to($slug ? 'question/' . $slug : '/')->with('success', 'Jawaban berhasil diperbarui.');
         } else {
@@ -218,28 +202,21 @@ class AnswerController extends BaseController
         }
     }
 
-    /**
-     * Menghapus jawaban.
-     * @param int $id_answer
-     */
+
     public function delete($id_answer)
     {
-        // 1. Pastikan user sudah login
         if (!session()->get('isLoggedIn')) {
             return redirect()->to('/login')->with('error', 'Anda harus login untuk melakukan aksi ini.');
         }
 
-        // 2. Dapatkan data jawaban
         $answer = $this->answerModel->find($id_answer);
 
-        // 3. Cek apakah jawaban ada
         if (!$answer) {
-            return redirect()->back()->with('error', 'Jawaban tidak ditemukan.'); // Redirect kembali ke halaman sebelumnya
+            return redirect()->back()->with('error', 'Jawaban tidak ditemukan.');
         }
 
-        // 4. Otorisasi: Pemilik jawaban ATAU Admin boleh menghapus
         $isOwner = ($answer['id_user'] == session()->get('user_id'));
-        $isAdmin = (session()->get('role') == 'admin'); // Ambil role dari session
+        $isAdmin = (session()->get('role') == 'admin');
 
         if (!($isOwner || $isAdmin)) {
             $question = $this->questionModel->find($answer['id_question']);
@@ -247,11 +224,9 @@ class AnswerController extends BaseController
             return redirect()->to($slug ? 'question/' . $slug : '/')->with('error', 'Anda tidak memiliki hak untuk menghapus jawaban ini.');
         }
 
-        // Dapatkan slug pertanyaan untuk redirect sebelum menghapus jawaban
         $question = $this->questionModel->find($answer['id_question']);
         $slug = $question ? $question['slug'] : '';
 
-        // 5. Proses penghapusan
         if ($this->answerModel->delete($id_answer)) {
             $message = 'Jawaban berhasil dihapus.';
             if ($isAdmin && !$isOwner) {

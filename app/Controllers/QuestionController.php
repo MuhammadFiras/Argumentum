@@ -6,7 +6,7 @@ use App\Models\QuestionModel;
 use App\Models\AnswerModel;
 use App\Models\AnswerRatingModel;
 
-class QuestionController extends BaseController // Pastikan nama class adalah QuestionController
+class QuestionController extends BaseController
 {
     protected $questionModel;
     protected $answerModel;
@@ -110,7 +110,7 @@ class QuestionController extends BaseController // Pastikan nama class adalah Qu
             return redirect()->back()->withInput()->with('error', 'Gagal mempublikasikan pertanyaan.');
         }
     }
-    
+
     public function edit($id_question)
     {
         $question = $this->questionModel->find($id_question);
@@ -162,9 +162,9 @@ class QuestionController extends BaseController // Pastikan nama class adalah Qu
         if (!$this->validate($rules)) {
             return redirect()->to('/questions/edit/' . $id_question)->withInput()->with('validation', $this->validator);
         }
-        
+
         $newTitle = $this->request->getPost('title');
-        $newSlug = $question['slug']; 
+        $newSlug = $question['slug'];
 
         if ($newTitle != $question['title']) {
             $newSlug = url_title($newTitle, '-', true);
@@ -191,41 +191,26 @@ class QuestionController extends BaseController // Pastikan nama class adalah Qu
         }
     }
 
-    /**
-     * Menghapus pertanyaan.
-     * @param int $id_question
-     */
     public function delete($id_question)
     {
-        // 1. Pastikan user sudah login
         if (!session()->get('isLoggedIn')) {
             return redirect()->to('/login')->with('error', 'Anda harus login untuk melakukan aksi ini.');
         }
 
-        // 2. Dapatkan data pertanyaan
         $question = $this->questionModel->find($id_question);
 
-        // 3. Cek apakah pertanyaan ada
         if (!$question) {
             return redirect()->to('/')->with('error', 'Pertanyaan tidak ditemukan.');
         }
 
-        // 4. Otorisasi: Pemilik pertanyaan ATAU Admin boleh menghapus
         $isOwner = ($question['id_user'] == session()->get('user_id'));
-        $isAdmin = (session()->get('role') == 'admin'); // Ambil role dari session
+        $isAdmin = (session()->get('role') == 'admin');
 
         if (!($isOwner || $isAdmin)) {
             return redirect()->to('/question/' . $question['slug'])->with('error', 'Anda tidak memiliki hak untuk menghapus pertanyaan ini.');
         }
 
-        // 5. Proses penghapusan
-        // Dengan ON DELETE CASCADE di database, jawaban terkait akan ikut terhapus.
-        // Jika tidak ada CASCADE, kamu mungkin perlu menghapus jawaban secara manual di sini:
-        // $this->answerModel->where('id_question', $id_question)->delete();
-
         if ($this->questionModel->delete($id_question)) {
-            // Jika admin yang menghapus pertanyaan orang lain, mungkin redirect ke halaman admin atau halaman utama.
-            // Jika pemilik yang menghapus, redirect ke halaman utama atau daftar pertanyaan mereka.
             $message = 'Pertanyaan berhasil dihapus.';
             if ($isAdmin && !$isOwner) {
                 $message = 'Pertanyaan (ID: ' . $id_question . ') berhasil dihapus oleh Admin.';

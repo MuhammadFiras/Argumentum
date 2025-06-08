@@ -7,23 +7,19 @@ use App\Models\UserModel;
 class AuthController extends BaseController
 {
     protected $userModel;
-    protected $helpers = ['form', 'url']; // Memuat helper form dan URL
+    protected $helpers = ['form', 'url'];
 
     public function __construct()
     {
         $this->userModel = new UserModel();
-        // Memuat service session jika belum otomatis (biasanya sudah)
-        // $this->session = \Config\Services::session();
     }
 
-    // Di dalam app/Controllers/AuthController.php
     public function login()
     {
         if (session()->get('isLoggedIn')) {
             return redirect()->to('/');
         }
         
-        // Tambahkan bodyClass untuk styling khusus halaman auth
         $data['bodyClass'] = 'auth-body';
         $data['title'] = 'Login';
 
@@ -37,8 +33,8 @@ class AuthController extends BaseController
             'email' => [
                 'rules' => 'required|valid_email',
                 'errors' => [
-                    'required' => 'Surel wajib diisi.',
-                    'valid_email' => 'Format surel tidak valid.'
+                    'required' => 'Email wajib diisi.',
+                    'valid_email' => 'Format email tidak valid.'
                 ]
             ],
             'password' => [
@@ -54,10 +50,8 @@ class AuthController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        // Ambil data dari POST request
         $email = $this->request->getPost('email');
         $password = $this->request->getPost('password');
-        // $rememberMe = $this->request->getPost('remember_me'); // Implementasi 'remember me' bisa ditambahkan nanti
 
         $user = $this->userModel->getUserByEmail($email);
 
@@ -72,27 +66,21 @@ class AuthController extends BaseController
             ];
             session()->set($sessionData);
 
-            // Regenerasi ID session untuk keamanan
             session()->regenerate();
 
             // Tentukan redirect berdasarkan role
             if ($user['role'] === 'admin') {
-                // Arahkan ke dashboard admin jika ada
-                // return redirect()->to('/admin/dashboard')->with('success', 'Login berhasil! Selamat datang, Admin.');
-                return redirect()->to('/')->with('success', 'Login berhasil! Selamat datang, Admin.'); // Sementara ke home
+                return redirect()->to('/')->with('success', 'Login berhasil! Selamat datang, Admin.');
             } else {
                 return redirect()->to('/')->with('success', 'Login berhasil!');
             }
         } else {
-            // Surel tidak ditemukan atau password salah
-            return redirect()->back()->withInput()->with('error', 'Surel atau kata sandi salah.');
+            return redirect()->back()->withInput()->with('error', 'Email atau password salah.');
         }
     }
 
-    // === HALAMAN REGISTER ===
     public function register()
     {
-        // Cek jika sudah login, redirect ke halaman home
         if (session()->get('isLoggedIn')) {
             return redirect()->to('/');
         }
@@ -119,7 +107,7 @@ class AuthController extends BaseController
                 'rules' => 'required|valid_email|is_unique[users.email]',
                 'errors' => [
                     'required' => 'Email wajib diisi.',
-                    'valid_email' => 'Format surel tidak valid.',
+                    'valid_email' => 'Format email tidak valid.',
                     'is_unique' => 'Email ini sudah terdaftar.'
                 ]
             ],
@@ -148,43 +136,37 @@ class AuthController extends BaseController
         ];
 
         if (!$this->validate($rules)) {
-            // dd($this->validator->getErrors());
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $photoProfileName = "default.jpg"; // Nama file default
+        $photoProfileName = "default.jpg";
         $photoProfileFile = $this->request->getFile('photo_profile');
 
-        // Cek apakah ada file yang diunggah, valid, dan belum dipindahkan
         if ($photoProfileFile && $photoProfileFile->isValid() && !$photoProfileFile->hasMoved()) {
-            $newName = $photoProfileFile->getRandomName(); // Buat nama file acak yang aman
+            $newName = $photoProfileFile->getRandomName();
 
-            // Tentukan path tujuan
             $targetPath = FCPATH . 'assets/images/profiles';
 
             if ($photoProfileFile->move($targetPath, $newName)) {
-                $photoProfileName = $newName; // Gunakan nama baru jika berhasil dipindah
+                $photoProfileName = $newName;
             }
         }
 
-        // Data valid, simpan ke database
         $userData = [
             'nama_lengkap' => $this->request->getPost('nama_lengkap'),
             'email' => $this->request->getPost('email'),
-            'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT), // HASH PASSWORDNYA!
-            'role' => 'user', // Default role
+            'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
+            'role' => 'user',
             'photo_profile' => $photoProfileName
         ];
 
         if ($this->userModel->insert($userData)) {
             return redirect()->to('/login')->with('success', 'Registrasi berhasil! Silakan masuk.');
         } else {
-            // Seharusnya tidak terjadi jika validasi `is_unique` berfungsi dan tidak ada error DB
             return redirect()->back()->withInput()->with('error', 'Gagal melakukan registrasi. Silakan coba lagi.');
         }
     }
 
-    // === LOGOUT ===
     public function logout()
     {
         session()->destroy();

@@ -14,16 +14,10 @@ class QuestionModel extends Model
 
     protected $allowedFields    = ['id_user', 'title', 'content', 'slug'];
 
-    // Dates
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
 
-    /**
-     * Mengambil pertanyaan dengan informasi user yang bertanya.
-     * @param string|null $slug Jika null, ambil semua pertanyaan. Jika ada, ambil pertanyaan spesifik.
-     * @return array|object|null
-     */
     public function getQuestionsWithUser(string $slug = null)
     {
         $builder = $this->db->table('questions q');
@@ -32,16 +26,11 @@ class QuestionModel extends Model
         $builder->orderBy('q.created_at', 'DESC');
 
         if ($slug === null) {
-            return $builder->get()->getResultArray(); // Ambil semua pertanyaan
+            return $builder->get()->getResultArray();
         }
-        return $builder->where('q.slug', $slug)->get()->getRowArray(); // Ambil satu pertanyaan berdasarkan slug
+        return $builder->where('q.slug', $slug)->get()->getRowArray();
     }
 
-     /**
-     * Mengambil pertanyaan berdasarkan ID user.
-     * @param int $userId
-     * @return array
-     */
     public function getQuestionsByUserId(int $userId): array
     {
         $builder = $this->db->table('questions q');

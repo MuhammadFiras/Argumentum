@@ -4,7 +4,6 @@
     <?= esc($title) ?>
 <?= $this->endSection() ?>
 
-<?php // Konten utama halaman ?>
 <?= $this->section('content') ?>
 
 <div class="container mt-4">

@@ -1,7 +1,7 @@
 <?= $this->extend('layout/main_layout') ?>
 
 <?= $this->section('title') ?>
-    <?= esc($title) ?>
+<?= esc($title) ?>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
@@ -24,7 +24,7 @@
                 <div class="mb-3">
                     <label for="answer_content" class="form-label">Edit Jawaban Anda:</label>
                     <textarea class="form-control <?= $validation->hasError('answer_content') ? 'is-invalid' : '' ?>"
-                              id="answer_content" name="answer_content" rows="8"><?= old('answer_content', esc($answer['content'])) ?></textarea>
+                        id="answer_content" name="answer_content" rows="8"><?= old('answer_content', esc($answer['content'])) ?></textarea>
                     <?php if ($validation->hasError('answer_content')): ?>
                         <div class="invalid-feedback">
                             <?= $validation->getError('answer_content') ?>
