@@ -84,6 +84,7 @@ class ProfileController extends BaseController
         $data = [
             'title' => 'Edit Profil Saya',
             'user_data' => $user,
+            'validation' => \Config\Services::validation() // <--- TAMBAHKAN BARIS INI
         ];
         return view('profile/edit_profile', $data); // Kita akan buat view ini
     }

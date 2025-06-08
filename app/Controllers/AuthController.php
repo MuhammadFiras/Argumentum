@@ -16,14 +16,17 @@ class AuthController extends BaseController
         // $this->session = \Config\Services::session();
     }
 
-    // === HALAMAN LOGIN ===
+    // Di dalam app/Controllers/AuthController.php
     public function login()
     {
-        // Cek jika sudah login, redirect ke halaman home
         if (session()->get('isLoggedIn')) {
-            return redirect()->to('/'); // Redirect ke base_url (nanti akan diatur ke home)
+            return redirect()->to('/');
         }
+        
+        // Tambahkan bodyClass untuk styling khusus halaman auth
+        $data['bodyClass'] = 'auth-body';
         $data['title'] = 'Login';
+
         return view('auth/login', $data);
     }
 
@@ -59,7 +62,6 @@ class AuthController extends BaseController
         $user = $this->userModel->getUserByEmail($email);
 
         if ($user && password_verify($password, $user['password'])) {
-            // Password cocok, buat session
             $sessionData = [
                 'user_id'       => $user['id_user'],
                 'nama_lengkap'  => $user['nama_lengkap'],
@@ -94,9 +96,9 @@ class AuthController extends BaseController
         if (session()->get('isLoggedIn')) {
             return redirect()->to('/');
         }
-        $data = [
-            'title' => 'Daftar - Argumentum'
-        ];
+        
+        $data['title'] = 'Daftar - Argumentum';        
+        
         return view('auth/register', $data);
     }
 
@@ -116,9 +118,9 @@ class AuthController extends BaseController
             'email' => [
                 'rules' => 'required|valid_email|is_unique[users.email]',
                 'errors' => [
-                    'required' => 'Surel wajib diisi.',
+                    'required' => 'Email wajib diisi.',
                     'valid_email' => 'Format surel tidak valid.',
-                    'is_unique' => 'Surel ini sudah terdaftar.'
+                    'is_unique' => 'Email ini sudah terdaftar.'
                 ]
             ],
             'password' => [
