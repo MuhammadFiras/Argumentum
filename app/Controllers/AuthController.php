@@ -20,8 +20,10 @@ class AuthController extends BaseController
             return redirect()->to('/');
         }
         
-        $data['bodyClass'] = 'auth-body';
-        $data['title'] = 'Login';
+        $data = [
+            'title' => 'Login - Argumentum',
+            'validation' => \Config\Services::validation()
+        ];
 
         return view('auth/login', $data);
     }
@@ -85,7 +87,10 @@ class AuthController extends BaseController
             return redirect()->to('/');
         }
         
-        $data['title'] = 'Daftar - Argumentum';        
+        $data = [
+            'title' => 'Daftar - Argumentum',
+            'validation' => \Config\Services::validation()
+        ];
         
         return view('auth/register', $data);
     }

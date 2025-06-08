@@ -1,7 +1,7 @@
 <?= $this->extend('layout/auth_layout') ?>
 
 <?= $this->section('title') ?>
-Login - Argumentum
+<?= esc($title); ?>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
