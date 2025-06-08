@@ -152,7 +152,7 @@ class ProfileController extends BaseController
             $targetPath = FCPATH . 'assets/images/profiles';
 
             if ($photoProfileFile->move($targetPath, $newName)) {
-                if($photoProfileName != 'default.jpg'){
+                if($photoProfileName != 'default.jpg' && file_exists($targetPath . '/' . $photoProfileName)){
                     unlink($targetPath . '/' . $photoProfileName);
                 }
                 $photoProfileName = $newName; // Gunakan nama baru jika berhasil dipindah

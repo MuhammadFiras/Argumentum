@@ -1,7 +1,7 @@
 <?= $this->extend('layout/auth_layout') ?>
 
 <?= $this->section('title') ?>
-    Login - Argumentum
+Login - Argumentum
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
@@ -26,20 +26,14 @@
 
         <div class="mb-3">
             <label for="email" class="form-label">Email</label>
-            <input type="email" class="form-control" id="email" name="email" value="<?= old('email') ?>" required>
-            <?php if (session()->getFlashdata('errors') && isset(session()->getFlashdata('errors')['email'])): ?>
-                <div class="invalid-feedback"><?= session()->getFlashdata('errors')['email'] ?></div>
-            <?php endif; ?>
-             <div id="emailError" class="invalid-feedback" style="display:none;"></div>
+            <input type="email" class="form-control <?= (isset(session()->getFlashdata('errors')['email'])) ? 'is-invalid' : ''; ?>" id="email" name="email" value="<?= old('email') ?>" required>
+            <div class="invalid-feedback"><?= (isset(session()->getFlashdata('errors')['email'])) ? session()->getFlashdata('errors')['email'] : ''; ?></div>
         </div>
 
         <div class="mb-4">
             <label for="password" class="form-label">Kata Sandi</label>
-            <input type="password" class="form-control" id="password" name="password" required>
-            <?php if (session()->getFlashdata('errors') && isset(session()->getFlashdata('errors')['password'])): ?>
-                <div class="invalid-feedback"><?= session()->getFlashdata('errors')['password'] ?></div>
-            <?php endif; ?>
-            <div id="passwordError" class="invalid-feedback" style="display:none;"></div>
+            <input type="password" class="form-control <?= (isset(session()->getFlashdata('errors')['password'])) ? 'is-invalid' : ''; ?>" id="password" name="password" required>
+            <div class="invalid-feedback"><?= (isset(session()->getFlashdata('errors')['password'])) ? session()->getFlashdata('errors')['password'] : ''; ?></div>
         </div>
 
         <button type="submit" class="btn btn-login w-100">Masuk</button>

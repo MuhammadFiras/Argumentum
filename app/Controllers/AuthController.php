@@ -42,7 +42,7 @@ class AuthController extends BaseController
                 ]
             ],
             'password' => [
-                'rules' => 'required|min_length[6]',
+                'rules' => 'required|min_length[8]',
                 'errors' => [
                     'required' => 'Kata sandi wajib diisi.',
                     'min_length' => 'Kata sandi minimal {param} karakter.'
