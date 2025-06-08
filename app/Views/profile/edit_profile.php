@@ -43,7 +43,7 @@
 
                 <div class="mb-3">
                     <label for="nama_lengkap" class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control <?= $validation->hasError('nama_lengkap') ? 'is-invalid' : '' ?>"
+                    <input type="text" class="form-control" <?= $validation->hasError('nama_lengkap') ? 'is-invalid' : '' ?>
                            id="nama_lengkap" name="nama_lengkap"
                            value="<?= old('nama_lengkap', esc($user_data['nama_lengkap'])) ?>" required>
                     <?php if (session()->getFlashdata('errors') && isset(session()->getFlashdata('errors')['nama_lengkap'])): ?>
@@ -66,7 +66,8 @@
                         <div class="invalid-feedback"><?= session()->getFlashdata('errors')['credentials'] ?></div>
                     <?php endif; ?>
                 </div>
-
+                
+                <?php //lanjutan getError dibawah ?>
                 <div class="mb-3">
                     <label for="description" class="form-label">Deskripsi Profil (Bio)</label>
                     <textarea class="form-control <?= $validation->hasError('description') ? 'is-invalid' : '' ?>"
