@@ -71,6 +71,15 @@ Daftar - Argumentum
                 <?= (isset(session()->getFlashdata('errors')['confirm_password'])) ? session()->getFlashdata('errors')['confirm_password'] : ''; ?>
             </div>
         </div>
+
+        <div class="mb-3">
+            <label for="photo_profile" class="form-label">Tambah Foto Profil (opsional)</label>
+            <input class="form-control <?= (isset(session()->getFlashdata('errors')['photo_profile'])) ? 'is-invalid' : ''; ?>" type="file" id="photo_profile" name="photo_profile">
+            <div class="invalid-feedback">
+                <?= (isset(session()->getFlashdata('errors')['photo_profile'])) ? session()->getFlashdata('errors')['photo_profile'] : ''; ?>
+            </div>
+        </div>
+
         <button type="submit" class="btn btn-register w-100">Daftar</button>
     </form>
 
