@@ -12,6 +12,10 @@ body {
   font-weight: bold;
   color: #b92b27 !important;
 }
+.navbar-nav .nav-link:hover {
+  color: #b92b27 !important;
+  font-weight: bold;
+}
 .ask-button {
   background-color: #b92b27;
   border-color: #b92b27;

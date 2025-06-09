@@ -24,7 +24,7 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 fw-bold">
                     <li class="nav-item"><a class="nav-link" href="<?= site_url('/') ?>">Beranda</a></li>
                 </ul>
                 <div class="d-flex">
@@ -55,11 +55,39 @@
         <?= $this->renderSection('content') ?>
     </div>
 
-    <footer class="text-center mt-auto py-3">
+    <footer class="bg-danger text-white mt-4 pt-3 pb-4">
         <div class="container">
-            <span class="text-muted">© Argumentum <?= date('Y') ?></span>
+            <hr class="pb-3">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4">
+                <div class="col mb-4 text-center text-md-start">
+                    <h5 class="fw-bold">Argumentum</h5>
+                    <p class="text-white">© 2025 Argumentum</p>
+                </div>
+
+                <div class="col mb-4">
+                    <h5 class="fw-bold">Muhammad Firas</h5>
+                    <ul class="nav flex-column">
+                        <li class="nav-item mb-2 text-white">2210817110014</li>
+                    </ul>
+                </div>
+
+                <div class="col mb-4">
+                    <h5 class="fw-bold">Muhammad Raihan</h5>
+                    <ul class="nav flex-column">
+                        <li class="nav-item mb-2 text-white">2310817110008</li>
+                    </ul>
+                </div>
+
+                <div class="col mb-4">
+                    <h5 class="fw-bold">Adrian Bintang Saputera</h5>
+                    <ul class="nav flex-column">
+                        <li class="nav-item mb-2 text-white">2310817110006</li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </footer>
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="<?= base_url('assets/js/app.js') ?>"></script>

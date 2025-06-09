@@ -28,7 +28,7 @@
             </div>
 
             <div class="mb-3">
-                <label for="content" class="form-label">Detail Pertanyaan (Opsional)</label>
+                <label for="content" class="form-label">Detail Pertanyaan</label>
                 <textarea
                     class="form-control <?= $validation->hasError('content') ? 'is-invalid' : '' ?>"
                     id="content"

@@ -24,10 +24,9 @@
     </div>
 
     <?php if (!empty($questions) && is_array($questions)): ?>
-        <div class="row g-4">
             <?php foreach ($questions as $question): ?>
-                <div class="col-md-6" data-aos="fade-up" data-aos-delay="<?= rand(0, 300) ?>">
-                    <div class="card question-card shadow-sm border-0 rounded-3">
+                <div class="mb-3" data-aos="fade-up" data-aos-delay="<?= rand(0, 300) ?>">
+                    <div class="card question-card shadow-sm border-danger rounded-3">
                         <div class="card-body">
                             <h5 class="card-title question-title">
                                 <a href="<?= site_url('question/' . esc($question['slug'], 'url')) ?>" class="text-decoration-none text-dark fw-semibold">
@@ -45,7 +44,6 @@
                     </div>
                 </div>
             <?php endforeach; ?>
-        </div>
     <?php else: ?>
         <p class="text-center fst-italic text-secondary" data-aos="fade-in">Belum ada pertanyaan.</p>
     <?php endif; ?>
