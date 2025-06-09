@@ -2,7 +2,7 @@
 
 <?= $this->section('content') ?>
 
-<div class="container mt-5">
+<div class="container mt-4">
     <?php if (session()->getFlashdata('success')): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert" data-aos="fade-down">
             <?= session()->getFlashdata('success') ?>
@@ -16,7 +16,7 @@
         </div>
     <?php endif; ?>
 
-    <div class="d-flex justify-content-between align-items-center mb-4" data-aos="fade-right">
+    <div class="d-flex justify-content-between align-items-center mb-3" data-aos="fade-right">
         <h1 class="text-danger fw-bold">Daftar Pertanyaan</h1>
         <?php if (session()->get('isLoggedIn')): ?>
             <a href="<?= site_url('/ask') ?>" class="btn btn-danger btn-sm shadow-sm">+ Tanya Pertanyaan</a>
