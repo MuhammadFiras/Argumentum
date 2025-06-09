@@ -1,9 +1,5 @@
 <?= $this->extend('layout/auth_layout') ?>
 
-<?= $this->section('title') ?>
-<?= esc($title); ?>
-<?= $this->endSection() ?>
-
 <?= $this->section('content') ?>
 <div class="register-container" data-aos="fade-up">
     <h2>Argumentum</h2>

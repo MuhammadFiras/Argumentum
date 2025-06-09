@@ -1,9 +1,5 @@
 <?= $this->extend('layout/main_layout') ?>
 
-<?= $this->section('title') ?>
-<?= esc($title ?? 'Detail Pertanyaan') ?>
-<?= $this->endSection() ?>
-
 <?= $this->section('content') ?>
 <div class="container mt-4" data-aos="fade-up">
     <?php if (session()->getFlashdata('success')): ?>

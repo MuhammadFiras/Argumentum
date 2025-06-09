@@ -1,9 +1,5 @@
 <?= $this->extend('layout/main_layout') ?>
 
-<?= $this->section('title') ?>
-    <?= esc($title) ?>
-<?= $this->endSection() ?>
-
 <?= $this->section('content') ?>
 <div class="container mt-4 mb-5">
     <?php if (session()->getFlashdata('success')): ?>

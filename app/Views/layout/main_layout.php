@@ -13,7 +13,6 @@
     <link rel="stylesheet" href="<?= base_url('assets/css/style.css') ?>">
 
     <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
-    <?= $this->renderSection('styles') ?>
 </head>
 
 <body class="d-flex flex-column min-vh-100 <?= $bodyClass ?? '' ?>">
