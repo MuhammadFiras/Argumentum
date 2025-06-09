@@ -24,8 +24,14 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0 fw-bold">
+                <ul class="navbar-nav me-2 mb-2 mb-lg-0 fw-bold">
                     <li class="nav-item"><a class="nav-link" href="<?= site_url('/') ?>">Beranda</a></li>
+                </ul>
+                <ul class="navbar-nav me-2 mb-2 mb-lg-0 fw-bold">
+                    <li class="nav-item"><a class="nav-link" href="#">Pertanyaan Saya</a></li>
+                </ul>
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 fw-bold">
+                    <li class="nav-item"><a class="nav-link" href="#">Jawaban Saya</a></li>
                 </ul>
                 <div class="d-flex">
                     <?php if (session()->get('isLoggedIn')): ?>
