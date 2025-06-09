@@ -16,7 +16,7 @@
     <?php endif; ?>
 
     <?php if (!empty($user_profile)): ?>
-        <div class="profile-header text-center text-md-start" data-aos="fade-right"><!-- animasi fade-right -->
+        <div class="profile-header text-center text-md-start" data-aos="fade-right">
             <div class="row align-items-center">
                 <div class="col-md-3 text-center mb-3 mb-md-0">
                     <?php
@@ -52,7 +52,7 @@
 
         <div class="row mt-4">
             <div class="col-md-12">
-                <ul class="nav nav-tabs mb-3" id="profileTab" role="tablist" data-aos="fade-up"><!-- animasi fade-up -->
+                <ul class="nav nav-tabs mb-3" id="profileTab" role="tablist" data-aos="fade-up">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="questions-tab" data-bs-toggle="tab" data-bs-target="#questions-content" type="button" role="tab" aria-controls="questions-content" aria-selected="true">
                             Pertanyaan (<?= count($questions_by_user) ?>)
@@ -65,7 +65,7 @@
                     </li>
                 </ul>
                 <div class="tab-content" id="profileTabContent">
-                    <div class="tab-pane fade show active content-section" id="questions-content" role="tabpanel" aria-labelledby="questions-tab" data-aos="fade-up"><!-- animasi fade-up -->
+                    <div class="tab-pane fade show active content-section" id="questions-content" role="tabpanel" aria-labelledby="questions-tab" data-aos="fade-up">
                         <h5>Pertanyaan Dibuat</h5>
                         <?php if (!empty($questions_by_user)): ?>
                             <ul class="list-unstyled">
@@ -82,7 +82,7 @@
                             <p class="text-muted"><?= ($is_own_profile) ? 'Anda belum membuat pertanyaan.' : 'Pengguna ini belum membuat pertanyaan.' ?></p>
                         <?php endif; ?>
                     </div>
-                    <div class="tab-pane fade content-section" id="answers-content" role="tabpanel" aria-labelledby="answers-tab" data-aos="fade-up"><!-- animasi fade-up -->
+                    <div class="tab-pane fade content-section" id="answers-content" role="tabpanel" aria-labelledby="answers-tab" data-aos="fade-up">
                         <h5>Jawaban Diberikan</h5>
                         <?php if (!empty($answers_by_user)): ?>
                             <ul class="list-unstyled">
