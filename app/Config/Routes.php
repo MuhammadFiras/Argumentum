@@ -8,6 +8,10 @@ use CodeIgniter\Router\RouteCollection;
 // Default route (halaman utama)
 $routes->get('/', 'Home::index');
 
+//Routes Pertanyaan Saya & Jawaban Saya
+$routes->get('/my-questions', 'Home::myQuestions');
+$routes->get('/my-answers', 'Home::myAnswers');
+
 // Authentication Routes
 $routes->get('/login', 'AuthController::login');
 $routes->post('/auth/processLogin', 'AuthController::processLogin');

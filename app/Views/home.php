@@ -17,35 +17,56 @@
     <?php endif; ?>
 
     <div class="d-flex justify-content-between align-items-center mb-3" data-aos="fade-right">
-        <h1 class="text-danger fw-bold">Daftar Pertanyaan</h1>
+        <h1 class="text-danger fw-bold"><?= esc($header); ?></h1>
         <?php if (session()->get('isLoggedIn')): ?>
             <a href="<?= site_url('/ask') ?>" class="btn btn-danger btn-sm shadow-sm">+ Tanya Pertanyaan</a>
         <?php endif; ?>
     </div>
 
-    <?php if (!empty($questions) && is_array($questions)): ?>
-            <?php foreach ($questions as $question): ?>
-                <div class="mb-3" data-aos="fade-up" data-aos-delay="<?= rand(0, 300) ?>">
-                    <div class="card question-card shadow-sm border-danger rounded-3">
-                        <div class="card-body">
-                            <h5 class="card-title question-title">
-                                <a href="<?= site_url('question/' . esc($question['slug'], 'url')) ?>" class="text-decoration-none text-dark fw-semibold">
-                                    <?= esc($question['title']) ?>
-                                </a>
-                            </h5>
-                            <p class="card-text text-secondary">
-                                <?= word_limiter(esc($question['content']), 30) ?>
-                            </p>
-                            <div class="user-info text-muted fst-italic small">
-                                Ditanyakan oleh: <?= esc($question['user_nama']) ?> <br>
-                                <small><?= CodeIgniter\I18n\Time::parse($question['created_at'])->humanize() ?></small>
-                            </div>
+    <?php if (!empty($questions) && is_array($questions) && $section != 'my_answers'): ?>
+        <?php foreach ($questions as $question): ?>
+            <div class="mb-3" data-aos="fade-up" data-aos-delay="<?= rand(0, 300) ?>">
+                <div class="card question-card shadow-sm border-danger rounded-3">
+                    <div class="card-body">
+                        <h5 class="card-title question-title">
+                            <a href="<?= site_url('question/' . esc($question['slug'], 'url')) ?>" class="text-decoration-none text-dark fw-semibold">
+                                <?= esc($question['title']) ?>
+                            </a>
+                        </h5>
+                        <p class="card-text text-secondary">
+                            <?= word_limiter(esc($question['content']), 30) ?>
+                        </p>
+                        <div class="user-info text-muted fst-italic small">
+                            Ditanyakan oleh: <?= esc($question['user_nama']) ?> <br>
+                            <small><?= CodeIgniter\I18n\Time::parse($question['created_at'])->humanize() ?></small>
                         </div>
                     </div>
                 </div>
-            <?php endforeach; ?>
-    <?php else: ?>
+            </div>
+        <?php endforeach; ?>
+    <?php elseif($section != 'my_answers'): ?>
         <p class="text-center fst-italic text-secondary" data-aos="fade-in">Belum ada pertanyaan.</p>
+    <?php endif; ?>
+
+    <?php if (!empty($answers_by_user) && $section == 'my_answers'): ?>
+        <?php foreach ($answers_by_user as $answer): ?>
+            <div class="mb-3" data-aos="fade-up" data-aos-delay="<?= rand(0, 300) ?>">
+                <div class="card question-card shadow-sm border-danger rounded-3">
+                    <div class="card-body">
+                        <div class="list-item-title">
+                            <a href="<?= site_url('question/' . esc($answer['question_slug']) . '#answer-' . $answer['id_answer']) ?>">
+                                Jawaban untuk: <?= esc($answer['question_title']) ?>
+                            </a>
+                        </div>
+                        <p class="list-item-content"><?= word_limiter(esc($answer['content']), 30) ?></p>
+                        <small class="text-muted">Diberikan: <?= CodeIgniter\I18n\Time::parse($answer['created_at'])->toLocalizedString('d MMMM yyyy') ?></small>
+                    </div>
+                </div>
+            </div>
+        <?php endforeach; ?>
+        </ul>
+    <?php elseif($section == 'my_answers'): ?>
+        <p class="text-center fst-italic text-secondary">Belum ada jawaban.</p>
     <?php endif; ?>
 </div>
 
