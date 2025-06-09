@@ -17,7 +17,7 @@
 
 <body class="d-flex flex-column min-vh-100 <?= $bodyClass ?? '' ?>">
 
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top ">
         <div class="container">
             <a class="navbar-brand" href="<?= site_url('/') ?>">Argumentum</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -26,9 +26,6 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item"><a class="nav-link" href="<?= site_url('/') ?>">Beranda</a></li>
-                    <?php if (session()->get('isLoggedIn')): ?>
-                        <li class="nav-item"><a class="nav-link" href="<?= site_url('/ask') ?>">Tanya Pertanyaan</a></li>
-                    <?php endif; ?>
                 </ul>
                 <div class="d-flex">
                     <?php if (session()->get('isLoggedIn')): ?>
