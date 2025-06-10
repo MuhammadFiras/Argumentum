@@ -17,22 +17,30 @@
 
 <body class="d-flex flex-column min-vh-100 <?= $bodyClass ?? '' ?>">
 
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top ">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
         <div class="container">
             <a class="navbar-brand" href="<?= site_url('/') ?>">Argumentum</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-2 mb-2 mb-lg-0 fw-bold">
-                    <li class="nav-item"><a class="nav-link" href="<?= site_url('/') ?>">Beranda</a></li>
-                </ul>
-                <ul class="navbar-nav me-2 mb-2 mb-lg-0 fw-bold">
-                    <li class="nav-item"><a class="nav-link" href="<?= site_url('/my-questions'); ?>">Pertanyaan Saya</a></li>
-                </ul>
+                
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 fw-bold">
-                    <li class="nav-item"><a class="nav-link" href="<?= site_url('/my-answers'); ?>">Jawaban Saya</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="<?= site_url('/') ?>">Beranda</a>
+                    </li>
+                    
+                    <?php if (session()->get('isLoggedIn')): ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="<?= site_url('/my-questions') ?>">Pertanyaan Saya</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="<?= site_url('/my-answers') ?>">Jawaban Saya</a>
+                        </li>
+                    <?php endif; ?>
+
                 </ul>
+
                 <div class="d-flex">
                     <?php if (session()->get('isLoggedIn')): ?>
                         <div class="dropdown">
@@ -42,9 +50,7 @@
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton1">
                                 <li><a class="dropdown-item" href="<?= site_url('/profile') ?>">Profil Saya</a></li>
                                 <li><a class="dropdown-item" href="<?= site_url('/profile/edit') ?>">Edit Profil</a></li>
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
+                                <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="<?= site_url('/logout') ?>">Logout</a></li>
                             </ul>
                         </div>
@@ -107,7 +113,6 @@
             });
         });
     </script>
-
 
     <?= $this->renderSection('scripts') ?>
 </body>
