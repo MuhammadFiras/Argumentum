@@ -115,17 +115,17 @@ class ProfileController extends BaseController
                 ]
             ],
             'linkedin_url' => [
-                'rules' => 'permit_empty|max_length[255]|valid_url',
+                'rules' => 'permit_empty|max_length[255]|valid_url_strict', 
                 'errors' => [
                     'max_length' => "Karakter dalam Link melebihi 255 karakter",
-                    'valid_url' => 'Link tidak valid',
+                    'valid_url_strict' => 'Link LinkedIn tidak valid. Pastikan diawali dengan http:// atau https://', 
                 ]
             ],
             'instagram_url' => [
-                'rules' => 'permit_empty|max_length[255]|valid_url',
+                'rules' => 'permit_empty|max_length[255]|valid_url_strict', 
                 'errors' => [
                     'max_length' => "Karakter dalam Link melebihi 255 karakter",
-                    'valid_url' => 'Link tidak valid',
+                    'valid_url_strict' => 'Link Instagram tidak valid. Pastikan diawali dengan http:// atau https://', 
                 ]
             ],
             'photo_profile' => [
