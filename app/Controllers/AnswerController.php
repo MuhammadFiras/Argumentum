@@ -237,4 +237,30 @@ class AnswerController extends BaseController
             return redirect()->to($slug ? 'question/' . $slug : '/')->with('error', 'Gagal menghapus jawaban.');
         }
     }
+
+    public function deleteRating(int $id_answer)
+    {
+        $userId = session()->get('user_id');
+
+        // Hapus rating dari database menggunakan method yang baru kita buat
+        $deleted = $this->answerRatingModel->deleteRatingByUser($id_answer, $userId);
+
+        if ($deleted) {
+            // Setelah berhasil dihapus, hitung ulang statistik rating
+            $newStats = $this->answerRatingModel->getAverageRating($id_answer);
+
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Rating Anda telah dihapus.',
+                'average_rating' => number_format($newStats['average'], 1),
+                'rating_count' => $newStats['count']
+            ]);
+        } else {
+            // Ini bisa terjadi jika pengguna mencoba menghapus rating yang tidak ada
+            return $this->response->setStatusCode(404)->setJSON([
+                'success' => false,
+                'message' => 'Rating tidak ditemukan untuk dihapus.'
+            ]);
+        }
+    }
 }

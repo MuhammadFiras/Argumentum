@@ -90,7 +90,7 @@ body {
 }
 .back-btn {
   position: absolute;
-  top: -40px; 
+  top: -40px;
   left: 0;
   color: #a32622;
   font-weight: bold;
@@ -297,4 +297,26 @@ body {
   padding: 10px 15px;
   margin-bottom: 20px;
   font-size: 0.9em;
+}
+
+/* == BAGIAN KOMENTAR JAWABAN                   == */
+
+.answer-comments-section {
+  font-size: 0.9em;
+}
+
+.comment-item .comment-content {
+  background-color: #f0f2f5;
+  padding: 8px 12px;
+  border-radius: 15px;
+  width: 100%;
+}
+
+.comment-item p {
+  margin: 0;
+  word-wrap: break-word;
+}
+
+.comment-form textarea {
+  resize: vertical; /* Izinkan user mengubah tinggi textarea */
 }

@@ -24,12 +24,12 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                
+
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 fw-bold">
                     <li class="nav-item">
                         <a class="nav-link" href="<?= site_url('/') ?>">Beranda</a>
                     </li>
-                    
+
                     <?php if (session()->get('isLoggedIn')): ?>
                         <li class="nav-item">
                             <a class="nav-link" href="<?= site_url('/my-questions') ?>">Pertanyaan Saya</a>
@@ -50,7 +50,9 @@
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton1">
                                 <li><a class="dropdown-item" href="<?= site_url('/profile') ?>">Profil Saya</a></li>
                                 <li><a class="dropdown-item" href="<?= site_url('/profile/edit') ?>">Edit Profil</a></li>
-                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
                                 <li><a class="dropdown-item" href="<?= site_url('/logout') ?>">Logout</a></li>
                             </ul>
                         </div>
@@ -100,6 +102,10 @@
         </div>
     </footer>
 
+
+    <script>
+        const siteUrl = '<?= rtrim(site_url(), '/') ?>';
+    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="<?= base_url('assets/js/app.js') ?>"></script>

@@ -5,12 +5,14 @@ namespace App\Controllers;
 use App\Models\QuestionModel;
 use App\Models\AnswerModel;
 use App\Models\AnswerRatingModel;
+use App\Models\AnswerCommentModel;
 
 class QuestionController extends BaseController
 {
     protected $questionModel;
     protected $answerModel;
     protected $answerRatingModel;
+    protected $commentModel; // <-- TAMBAHKAN PROPERTY INI
     protected $helpers = ['form', 'url', 'text', 'date'];
 
     public function __construct()
@@ -18,6 +20,7 @@ class QuestionController extends BaseController
         $this->questionModel = new QuestionModel();
         $this->answerModel = new AnswerModel();
         $this->answerRatingModel = new AnswerRatingModel();
+        $this->commentModel = new AnswerCommentModel(); // <-- INSTANSIASI MODEL KOMENTAR
     }
 
     public function view($slug = null)
@@ -25,9 +28,7 @@ class QuestionController extends BaseController
         if ($slug === null) {
             return redirect()->to('/')->with('error', 'Pertanyaan tidak ditemukan.');
         }
-
         $question = $this->questionModel->getQuestionsWithUser($slug);
-
         if (!$question) {
             return redirect()->to('/')->with('error', 'Pertanyaan tidak ditemukan atau slug tidak valid.');
         }
@@ -37,6 +38,7 @@ class QuestionController extends BaseController
         $loggedInUserId = session()->get('isLoggedIn') ? session()->get('user_id') : null;
 
         foreach ($answersFromDB as $answer) {
+            // Ambil data rating (kode yang sudah ada)
             $answer['rating_stats'] = $this->answerRatingModel->getAverageRating($answer['id_answer']);
             $userGivenRatingValue = 0;
             if ($loggedInUserId) {
@@ -46,15 +48,20 @@ class QuestionController extends BaseController
                 }
             }
             $answer['user_given_rating'] = $userGivenRatingValue;
+
+            // ==> PERUBAHAN DI SINI: Ambil komentar untuk setiap jawaban <==
+            $answer['comments'] = $this->commentModel->getCommentsForAnswer($answer['id_answer']);
+
             $processedAnswers[] = $answer;
         }
 
         $data = [
             'title' => esc($question['title']),
             'question' => $question,
-            'answers' => $processedAnswers,
+            'answers' => $processedAnswers, // Sekarang array ini juga berisi 'comments'
             'validation_answer' => session()->getFlashdata('validation_answer') ?? \Config\Services::validation()
         ];
+
         return view('questions/view_question', $data);
     }
 

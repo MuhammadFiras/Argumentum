@@ -31,7 +31,13 @@ $routes->post('/questions/delete/(:num)', 'QuestionController::delete/$1', ['fil
 // Routes untuk Jawaban
 $routes->post('/answer/submit/(:num)', 'AnswerController::submit/$1', ['filter' => 'authGuard']);
 $routes->post('/answer/rate/(:num)', 'AnswerController::rateAnswer/$1', ['filter' => 'authGuard']);
+$routes->post('/answer/delete-rating/(:num)', 'AnswerController::deleteRating/$1', ['filter' => 'authGuard']);
 $routes->post('/answer/toggle-best/(:num)', 'AnswerController::toggleBestAnswer/$1', ['filter' => 'authGuard']);
+
+// RUTE BARU UNTUK KOMENTAR
+$routes->post('/comment/create/(:num)', 'CommentController::create/$1', ['filter' => 'authGuard']);
+$routes->post('/comment/update/(:num)', 'CommentController::update/$1', ['filter' => 'authGuard']);
+$routes->post('/comment/delete/(:num)', 'CommentController::delete/$1', ['filter' => 'authGuard']);
 
 // Rute BARU untuk Edit dan Delete Jawaban
 $routes->get('/answer/edit/(:num)', 'AnswerController::edit/$1', ['filter' => 'authGuard']);

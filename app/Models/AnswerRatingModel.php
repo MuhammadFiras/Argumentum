@@ -45,4 +45,11 @@ class AnswerRatingModel extends Model
             return $this->insert($data);
         }
     }
+
+    public function deleteRatingByUser(int $id_answer, int $id_user): bool
+    {
+        return $this->where('id_answer', $id_answer)
+                    ->where('id_user', $id_user)
+                    ->delete();
+    }
 }

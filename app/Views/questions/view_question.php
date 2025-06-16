@@ -120,13 +120,32 @@
                                 (<span id="count-rating-<?= esc($answer['id_answer']) ?>"><?= esc($answer['rating_stats']['count']) ?></span> suara)
                             </span>
 
-                            <?php if (session()->get('isLoggedIn') && session()->get('user_id') != $answer['id_user']): ?>
+                            <!-- <?php if (session()->get('isLoggedIn') && session()->get('user_id') != $answer['id_user']): ?>
                                 <div class="star-rating mt-1" data-answer-id="<?= esc($answer['id_answer']) ?>">
                                     <small>Beri rating:</small>
                                     <?php $userGivenRating = $answer['user_given_rating']; ?>
                                     <?php for ($i = 1; $i <= 5; $i++): ?>
                                         <span class="star <?= ($i <= $userGivenRating) ? 'rated' : '' ?>" data-value="<?= $i ?>">&#9733;</span>
                                     <?php endfor; ?>
+                                </div>
+                                <div id="rating-feedback-message-<?= esc($answer['id_answer']) ?>" class="rating-feedback-message"></div>
+                            <?php endif; ?> -->
+                            <?php if (session()->get('isLoggedIn') && session()->get('user_id') != $answer['id_user']): ?>
+                                <div class="star-rating-container d-flex align-items-center">
+                                    <div class="star-rating mt-1" data-answer-id="<?= esc($answer['id_answer']) ?>" data-current-rating="<?= esc($answer['user_given_rating']) ?>">
+                                        <small>Beri rating:</small>
+                                        <?php $userGivenRating = $answer['user_given_rating']; ?>
+                                        <?php for ($i = 1; $i <= 5; $i++): ?>
+                                            <span class="star <?= ($i <= $userGivenRating) ? 'rated' : '' ?>" data-value="<?= $i ?>">&#9733;</span>
+                                        <?php endfor; ?>
+                                    </div>
+
+                                    <a href="#"
+                                        class="btn-delete-rating small text-decoration-none text-danger ms-3"
+                                        data-answer-id="<?= esc($answer['id_answer']) ?>"
+                                        style="<?= ($answer['user_given_rating'] > 0) ? 'display: inline;' : 'display: none;' ?>">
+                                        Hapus Rating
+                                    </a>
                                 </div>
                                 <div id="rating-feedback-message-<?= esc($answer['id_answer']) ?>" class="rating-feedback-message"></div>
                             <?php endif; ?>
@@ -163,6 +182,52 @@
                                 <?php endif; ?>
                             <?php endif; ?>
                         </div>
+                    </div>
+                    <div class="answer-comments-section mt-4">
+                        <hr>
+                        <h6>Komentar (<span id="comment-count-<?= $answer['id_answer'] ?>"><?= count($answer['comments']) ?></span>)</h6>
+
+                        <div class="comment-list" id="comment-list-<?= $answer['id_answer'] ?>">
+                            <?php // Loop untuk menampilkan komentar yang sudah ada 
+                            ?>
+                            <?php if (!empty($answer['comments'])): ?>
+                                <?php foreach ($answer['comments'] as $comment): ?>
+                                    <div class="comment-item d-flex align-items-start mb-2" id="comment-item-<?= $comment['id_comment'] ?>">
+                                        <img src="<?= base_url('assets/images/profiles/' . esc($comment['photo_profile'] ?? 'default.jpg')) ?>" alt="<?= esc($comment['nama_lengkap']) ?>" class="rounded-circle me-2" width="24" height="24">
+                                        <div class="comment-content w-100">
+                                            <strong><?= esc($comment['nama_lengkap']) ?></strong>
+
+                                            <div id="comment-text-display-<?= $comment['id_comment'] ?>">
+                                                <p class="mb-0"><?= esc($comment['comment_text']) ?></p>
+                                                <small class="text-muted"><?= CodeIgniter\I18n\Time::parse($comment['created_at'])->humanize() ?></small>
+                                            </div>
+
+                                            <div class="comment-edit-form-area" id="comment-edit-form-area-<?= $comment['id_comment'] ?>" style="display: none;">
+                                            </div>
+
+                                            <?php if (session()->get('isLoggedIn') && session()->get('user_id') == $comment['id_user']): ?>
+                                                <div class="comment-actions mt-1">
+                                                    <a href="#" class="btn-edit-comment small text-decoration-none" data-comment-id="<?= $comment['id_comment'] ?>">Edit</a>
+                                                    ·
+                                                    <a href="#" class="btn-delete-comment small text-decoration-none text-danger" data-comment-id="<?= $comment['id_comment'] ?>">Hapus</a>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
+
+                        <?php // Form untuk menambah komentar baru 
+                        ?>
+                        <?php if (session()->get('isLoggedIn')): ?>
+                            <form class="comment-form mt-3" data-answer-id="<?= $answer['id_answer'] ?>" action="<?= site_url('comment/create/' . $answer['id_answer']) ?>" method="POST">
+                                <div class="input-group">
+                                    <textarea class="form-control form-control-sm" name="comment_text" placeholder="Tulis komentar..." rows="1" required></textarea>
+                                    <button class="btn btn-outline-secondary btn-sm" type="submit">Kirim</button>
+                                </div>
+                            </form>
+                        <?php endif; ?>
                     </div>
                 </div>
             <?php endforeach; ?>
