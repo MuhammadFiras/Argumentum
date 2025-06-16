@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
       formData.append("rating", ratingValue);
       formData.append(csrfName, csrfHash);
 
-      fetch(`${siteUrl}/answer/rate/${answerId}`, {
+      fetch(`${baseUrl}/answer/rate/${answerId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -173,7 +173,7 @@ document.addEventListener("DOMContentLoaded", function () {
           if (data.success) {
             const newComment = data.comment;
             const commentId = data.comment_id ?? newComment.id_comment;
-            const photoUrl = `${siteUrl}/assets/images/profiles/${
+            const photoUrl = `${baseUrl}/assets/images/profiles/${
               newComment.photo_profile ?? "default.jpg"
             }`;
             const isOwner = data.is_owner ?? true; // diasumsikan true jika tidak dikirim
@@ -258,7 +258,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const formData = new URLSearchParams();
       formData.append(csrfName, csrfHash);
 
-      fetch(`${siteUrl}/comment/delete/${commentId}`, {
+      fetch(`${baseUrl}/comment/delete/${commentId}`, {
         method: "POST",
         headers: { "X-Requested-With": "XMLHttpRequest" },
         body: formData,
@@ -350,7 +350,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const formData = new URLSearchParams();
       formData.append(csrfName, csrfHash);
 
-      fetch(`${siteUrl}/answer/delete-rating/${answerId}`, {
+      fetch(`${baseUrl}/answer/delete-rating/${answerId}`, {
         method: "POST",
         headers: { "X-Requested-With": "XMLHttpRequest" },
         body: formData,
@@ -409,7 +409,7 @@ document.addEventListener("DOMContentLoaded", function () {
       formData.append("comment_text", newText);
       formData.append(csrfName, csrfHash);
 
-      fetch(`${siteUrl}/comment/update/${commentId}`, {
+      fetch(`${baseUrl}/comment/update/${commentId}`, {
         method: "POST",
         headers: { "X-Requested-With": "XMLHttpRequest" },
         body: formData,
