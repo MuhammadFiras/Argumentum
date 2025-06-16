@@ -30,6 +30,18 @@
                     <span><?= esc($question['user_nama']) ?></span>
                 </a>
                 <span class="ms-2">· <?= CodeIgniter\I18n\Time::parse($question['created_at'])->humanize() ?></span>
+
+                <?php if (!empty($question['topics'])): ?>
+                    <div class="topics-container d-flex align-items-center ms-3">
+                        <?php
+                        // Pecah string topik menjadi array
+                        $topic_array = explode(', ', $question['topics']);
+                        ?>
+                        <?php foreach ($topic_array as $topic_name): ?>
+                            <span class="badge bg-secondary me-1"><?= esc($topic_name) ?></span>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
             </div>
             <hr>
             <div class="question-content">
@@ -171,13 +183,13 @@
                                 <?php endif; ?>
 
                                 <?php if ($isAnswerOwner): ?>
-                                    <a href="<?= site_url('answer/edit/' . $answer['id_answer']) ?>" class="btn btn-sm btn-outline-secondary me-2">Edit</a>
+                                    <a href="<?= site_url('answer/edit/' . $answer['id_answer']) ?>" class="btn btn-sm btn-outline-secondary me-2">Edit Jawaban</a>
                                 <?php endif; ?>
 
                                 <?php if ($isAnswerOwner || $isAdmin): ?>
                                     <form action="<?= site_url('answer/delete/' . $answer['id_answer']) ?>" method="post" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus jawaban ini?<?= $isAdmin && !$isAnswerOwner ? " (Sebagai Admin)" : "" ?>');">
                                         <?= csrf_field() ?>
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">Hapus</button>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Hapus Jawaban</button>
                                     </form>
                                 <?php endif; ?>
                             <?php endif; ?>
