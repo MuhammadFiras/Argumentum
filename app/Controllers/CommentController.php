@@ -73,6 +73,7 @@ class CommentController extends BaseController
             return $this->response->setJSON([
                 'success' => true,
                 'message' => 'Komentar berhasil ditambahkan.',
+                'comment_id' => $this->commentModel->getInsertID(), // INI!
                 'comment' => $newCommentData
             ]);
         } else {

@@ -1,14 +1,20 @@
 document.addEventListener("DOMContentLoaded", function () {
   //== SCRIPT UNTUK RATING BINTANG ==
   // Ambil nama dan hash CSRF dari meta tag yang benar
-  const csrfName = document.querySelector('meta[name="csrf-token-name"]')?.getAttribute("content");
-  let csrfHash = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
+  const csrfName = document
+    .querySelector('meta[name="csrf-token-name"]')
+    ?.getAttribute("content");
+  let csrfHash = document
+    .querySelector('meta[name="csrf-token"]')
+    ?.getAttribute("content");
 
   // Fungsi untuk memperbarui token CSRF setelah setiap request AJAX
   const updateCsrfToken = (newHash) => {
     if (newHash) {
       csrfHash = newHash;
-      document.querySelector('meta[name="csrf-token"]').setAttribute("content", newHash);
+      document
+        .querySelector('meta[name="csrf-token"]')
+        .setAttribute("content", newHash);
     }
   };
 
@@ -20,7 +26,9 @@ document.addEventListener("DOMContentLoaded", function () {
       const originalRating = parent.dataset.currentRating;
 
       // ===== FIX: Aktifkan kembali baris ini =====
-      const feedbackDiv = document.getElementById(`rating-feedback-message-${answerId}`);
+      const feedbackDiv = document.getElementById(
+        `rating-feedback-message-${answerId}`
+      );
 
       // Langsung perbarui tampilan bintang (Optimistic Update)
       parent.querySelectorAll(".star").forEach((s) => {
@@ -64,15 +72,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
             // === SEKARANG KODE INI AKAN BERJALAN ===
             // Penyempurnaan: Format angka agar selalu ada satu desimal (misal: 4.0)
-            document.getElementById(`avg-rating-${answerId}`).textContent = parseFloat(data.average_rating).toFixed(1);
-            document.getElementById(`count-rating-${answerId}`).textContent = data.rating_count;
+            document.getElementById(`avg-rating-${answerId}`).textContent =
+              parseFloat(data.average_rating).toFixed(1);
+            document.getElementById(`count-rating-${answerId}`).textContent =
+              data.rating_count;
 
             // Update rating saat ini untuk klik berikutnya
             parent.dataset.currentRating = ratingValue;
 
             // ===== FIX ADA DI SINI =====
             // Setelah berhasil memberi rating, cari tombol 'Hapus Rating' dan tampilkan.
-            const deleteButton = parent.closest(".star-rating-container").querySelector(".btn-delete-rating");
+            const deleteButton = parent
+              .closest(".star-rating-container")
+              .querySelector(".btn-delete-rating");
             if (deleteButton) {
               deleteButton.style.display = "inline";
             }
@@ -119,7 +131,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   //=======================================================
-  //== SCRIPT UNTUK SUBMIT KOMENTAR (AJAX) - DIPERBAIKI
+  //== SCRIPT UNTUK SUBMIT KOMENTAR (AJAX) - FINAL VERSION
   //=======================================================
   document.querySelectorAll(".comment-form").forEach((form) => {
     form.addEventListener("submit", function (event) {
@@ -127,26 +139,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const answerId = this.dataset.answerId;
       const commentList = document.getElementById(`comment-list-${answerId}`);
-      const commentTextarea = this.querySelector('textarea[name="comment_text"]');
-      const commentText = commentTextarea.value.trim();
+      const textarea = this.querySelector('textarea[name="comment_text"]');
+      const commentText = textarea.value.trim();
       const submitButton = this.querySelector('button[type="submit"]');
 
-      if (commentText === "") {
-        return;
-      }
+      if (commentText === "") return;
 
+      // FormData untuk request POST
       const formData = new URLSearchParams();
       formData.append("comment_text", commentText);
-      // Gunakan variabel CSRF yang sudah kita definisikan di atas dan selalu up-to-date
       formData.append(csrfName, csrfHash);
 
+      // Tombol loading
       submitButton.disabled = true;
-      submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+      submitButton.innerHTML =
+        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
 
-      // Hapus deklarasi const siteUrl dari sini, karena sudah ada secara global
-
-      // Gunakan variabel `siteUrl` global dari main_layout.php
-      fetch(`${siteUrl}/comment/create/${answerId}`, {
+      fetch(this.action, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -155,41 +164,70 @@ document.addEventListener("DOMContentLoaded", function () {
         body: formData.toString(),
       })
         .then((response) => {
-          // Selalu perbarui token CSRF setelah request berhasil
           updateCsrfToken(response.headers.get("X-CSRF-TOKEN"));
-
-          if (!response.ok) {
-            return response.json().then((errData) => Promise.reject(errData));
-          }
+          if (!response.ok)
+            return response.json().then((err) => Promise.reject(err));
           return response.json();
         })
         .then((data) => {
           if (data.success) {
-            // (Disarankan menggunakan metode aman yang dijelaskan di atas)
             const newComment = data.comment;
-            const commentEl = document.createElement("div");
-            commentEl.className = "comment-item d-flex align-items-start mb-2";
-            commentEl.innerHTML = `
-              <img src="${siteUrl}/assets/images/profiles/${newComment.photo_profile}" alt="${newComment.nama_lengkap}" class="rounded-circle me-2" width="24" height="24">
-              <div class="comment-content">
-                  <strong>${newComment.nama_lengkap}</strong>
+            const commentId = data.comment_id ?? newComment.id_comment;
+            const photoUrl = `${siteUrl}/assets/images/profiles/${
+              newComment.photo_profile ?? "default.jpg"
+            }`;
+            const isOwner = data.is_owner ?? true; // diasumsikan true jika tidak dikirim
+
+            const newCommentHtml = `
+            <div class="comment-item d-flex align-items-start mb-2"
+              id="comment-item-${commentId}"
+              data-answer-id="${answerId}">
+              <img src="${photoUrl}" alt="${
+              newComment.nama_lengkap
+            }" class="rounded-circle me-2" width="24" height="24">
+              <div class="comment-content w-100">
+                <strong>${newComment.nama_lengkap}</strong>
+                <div id="comment-text-display-${commentId}">
                   <p class="mb-0">${newComment.comment_text}</p>
-                  <small class="text-muted">${newComment.created_at}</small>
+                  <small class="text-muted">${
+                    newComment.created_at ?? "Baru saja"
+                  }</small>
+                </div>
+                <div class="comment-edit-form-area" id="comment-edit-form-area-${commentId}" style="display: none;"></div>
+                ${
+                  isOwner
+                    ? `<div class="comment-actions mt-1">
+                        <a href="#" class="btn-edit-comment small text-decoration-none" data-comment-id="${commentId}">Edit</a>
+                        ·
+                        <a href="#" class="btn-delete-comment small text-decoration-none text-danger" data-comment-id="${commentId}">Hapus</a>
+                      </div>`
+                    : ""
+                }
               </div>
-            `;
-            commentList.appendChild(commentEl);
-            commentTextarea.value = "";
-            const commentCountEl = document.getElementById(`comment-count-${answerId}`);
-            commentCountEl.textContent = parseInt(commentCountEl.textContent) + 1;
+            </div>
+          `;
+
+            // Tambahkan komentar ke DOM
+            commentList.insertAdjacentHTML("beforeend", newCommentHtml);
+
+            // Reset textarea
+            textarea.value = "";
+
+            // Update jumlah komentar
+            const commentCountEl = document.getElementById(
+              `comment-count-${answerId}`
+            );
+            if (commentCountEl) {
+              commentCountEl.textContent =
+                parseInt(commentCountEl.textContent) + 1;
+            }
           } else {
             alert("Gagal menambahkan komentar: " + data.message);
           }
         })
         .catch((error) => {
           console.error("Error:", error);
-          // Cek message dari server jika ada, agar lebih informatif
-          const errorMessage = error.message || "Terjadi kesalahan. Silakan buka Developer Tools (F12) di tab Network untuk detail.";
-          alert(errorMessage);
+          alert(error.message || "Terjadi kesalahan saat mengirim komentar.");
         })
         .finally(() => {
           submitButton.disabled = false;
@@ -202,7 +240,6 @@ document.addEventListener("DOMContentLoaded", function () {
   //== SCRIPT UNTUK EDIT & HAPUS KOMENTAR (AJAX)
   //=======================================================
 
-  // Gunakan event delegation untuk efisiensi
   document.body.addEventListener("click", function (event) {
     // --- LOGIKA HAPUS KOMENTAR ---
     if (event.target.classList.contains("btn-delete-comment")) {
@@ -213,10 +250,13 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       const commentId = event.target.dataset.commentId;
-      const commentItemEl = document.getElementById(`comment-item-${commentId}`);
+      const commentItemEl = document.getElementById(
+        `comment-item-${commentId}`
+      );
+      const answerId = commentItemEl.dataset.answerId;
 
       const formData = new URLSearchParams();
-      formData.append(csrfName, csrfHash); // csrfName & csrfHash dari scope global
+      formData.append(csrfName, csrfHash);
 
       fetch(`${siteUrl}/comment/delete/${commentId}`, {
         method: "POST",
@@ -225,17 +265,25 @@ document.addEventListener("DOMContentLoaded", function () {
       })
         .then((response) => {
           updateCsrfToken(response.headers.get("X-CSRF-TOKEN"));
-          if (!response.ok) return response.json().then((err) => Promise.reject(err));
+          if (!response.ok)
+            return response.json().then((err) => Promise.reject(err));
           return response.json();
         })
         .then((data) => {
           if (data.success) {
-            // Animasi fade out lalu hapus
             commentItemEl.style.transition = "opacity 0.5s ease";
             commentItemEl.style.opacity = "0";
             setTimeout(() => {
               commentItemEl.remove();
-              // (Opsional) Update jumlah komentar
+              const commentCountEl = document.getElementById(
+                `comment-count-${answerId}`
+              );
+              if (commentCountEl) {
+                commentCountEl.textContent = Math.max(
+                  0,
+                  parseInt(commentCountEl.textContent) - 1
+                );
+              }
             }, 500);
           } else {
             alert("Gagal menghapus: " + data.message);
@@ -251,47 +299,53 @@ document.addEventListener("DOMContentLoaded", function () {
     if (event.target.classList.contains("btn-edit-comment")) {
       event.preventDefault();
       const commentId = event.target.dataset.commentId;
-      const textDisplayEl = document.getElementById(`comment-text-display-${commentId}`);
-      const editFormArea = document.getElementById(`comment-edit-form-area-${commentId}`);
+      const textDisplayEl = document.getElementById(
+        `comment-text-display-${commentId}`
+      );
+      const editFormArea = document.getElementById(
+        `comment-edit-form-area-${commentId}`
+      );
       const originalText = textDisplayEl.querySelector("p").textContent;
 
-      // Sembunyikan teks asli
       textDisplayEl.style.display = "none";
-
-      // Tampilkan form edit
       editFormArea.style.display = "block";
       editFormArea.innerHTML = `
-                <form class="form-edit-comment" data-comment-id="${commentId}">
-                    <textarea class="form-control form-control-sm mb-2" name="comment_text" rows="2" required>${originalText}</textarea>
-                    <button type="submit" class="btn btn-sm btn-primary">Simpan</button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary btn-cancel-edit">Batal</button>
-                </form>
-            `;
+      <form class="form-edit-comment" data-comment-id="${commentId}">
+          <textarea class="form-control form-control-sm mb-2" name="comment_text" rows="2" required>${originalText}</textarea>
+          <button type="submit" class="btn btn-sm btn-primary">Simpan</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary btn-cancel-edit">Batal</button>
+      </form>
+    `;
     }
 
-    // --- LOGIKA TOMBOL BATAL EDIT DIKLIK ---
+    // --- LOGIKA BATAL EDIT ---
     if (event.target.classList.contains("btn-cancel-edit")) {
       event.preventDefault();
       const form = event.target.closest(".form-edit-comment");
       const commentId = form.dataset.commentId;
 
-      // Kembalikan seperti semula
-      document.getElementById(`comment-text-display-${commentId}`).style.display = "block";
-      document.getElementById(`comment-edit-form-area-${commentId}`).style.display = "none";
-      document.getElementById(`comment-edit-form-area-${commentId}`).innerHTML = "";
+      document.getElementById(
+        `comment-text-display-${commentId}`
+      ).style.display = "block";
+      document.getElementById(
+        `comment-edit-form-area-${commentId}`
+      ).style.display = "none";
+      document.getElementById(`comment-edit-form-area-${commentId}`).innerHTML =
+        "";
     }
 
     // --- LOGIKA HAPUS RATING ---
     if (event.target.classList.contains("btn-delete-rating")) {
       event.preventDefault();
 
-      if (!confirm("Anda yakin ingin menghapus rating Anda untuk jawaban ini?")) {
+      if (!confirm("Anda yakin ingin menghapus rating Anda untuk jawaban ini?"))
         return;
-      }
 
       const deleteButton = event.target;
       const answerId = deleteButton.dataset.answerId;
-      const starRatingDiv = document.querySelector(`.star-rating[data-answer-id="${answerId}"]`);
+      const starRatingDiv = document.querySelector(
+        `.star-rating[data-answer-id="${answerId}"]`
+      );
 
       const formData = new URLSearchParams();
       formData.append(csrfName, csrfHash);
@@ -303,26 +357,24 @@ document.addEventListener("DOMContentLoaded", function () {
       })
         .then((response) => {
           updateCsrfToken(response.headers.get("X-CSRF-TOKEN"));
-          if (!response.ok) return response.json().then((err) => Promise.reject(err));
+          if (!response.ok)
+            return response.json().then((err) => Promise.reject(err));
           return response.json();
         })
         .then((data) => {
           if (data.success) {
-            // 1. Update teks rata-rata dan jumlah suara
-            document.getElementById(`avg-rating-${answerId}`).textContent = data.average_rating;
-            document.getElementById(`count-rating-${answerId}`).textContent = data.rating_count;
-
-            // 2. Kosongkan semua bintang
-            starRatingDiv.querySelectorAll(".star").forEach((s) => s.classList.remove("rated"));
-
-            // 3. Update data-current-rating menjadi 0
+            document.getElementById(`avg-rating-${answerId}`).textContent =
+              data.average_rating;
+            document.getElementById(`count-rating-${answerId}`).textContent =
+              data.rating_count;
+            starRatingDiv
+              .querySelectorAll(".star")
+              .forEach((s) => s.classList.remove("rated"));
             starRatingDiv.dataset.currentRating = "0";
-
-            // 4. Sembunyikan tombol "Hapus Rating"
             deleteButton.style.display = "none";
-
-            // 5. Tampilkan pesan sukses
-            const feedbackDiv = document.getElementById(`rating-feedback-message-${answerId}`);
+            const feedbackDiv = document.getElementById(
+              `rating-feedback-message-${answerId}`
+            );
             if (feedbackDiv) {
               feedbackDiv.textContent = data.message;
               feedbackDiv.className = "rating-feedback-message text-success";
@@ -338,8 +390,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // --- LOGIKA SUBMIT FORM EDIT ---
-  // Karena form dibuat dinamis, kita juga pakai event delegation
+  // --- LOGIKA SUBMIT FORM EDIT KOMENTAR ---
   document.body.addEventListener("submit", function (event) {
     if (event.target.classList.contains("form-edit-comment")) {
       event.preventDefault();
@@ -365,19 +416,23 @@ document.addEventListener("DOMContentLoaded", function () {
       })
         .then((response) => {
           updateCsrfToken(response.headers.get("X-CSRF-TOKEN"));
-          if (!response.ok) return response.json().then((err) => Promise.reject(err));
+          if (!response.ok)
+            return response.json().then((err) => Promise.reject(err));
           return response.json();
         })
         .then((data) => {
           if (data.success) {
-            const textDisplayEl = document.getElementById(`comment-text-display-${commentId}`);
-            // Update teks di view
+            const textDisplayEl = document.getElementById(
+              `comment-text-display-${commentId}`
+            );
             textDisplayEl.querySelector("p").textContent = data.updated_text;
-
-            // Kembalikan ke mode tampilan (bukan edit)
             textDisplayEl.style.display = "block";
-            document.getElementById(`comment-edit-form-area-${commentId}`).style.display = "none";
-            document.getElementById(`comment-edit-form-area-${commentId}`).innerHTML = "";
+            document.getElementById(
+              `comment-edit-form-area-${commentId}`
+            ).style.display = "none";
+            document.getElementById(
+              `comment-edit-form-area-${commentId}`
+            ).innerHTML = "";
           } else {
             alert("Gagal update: " + data.message);
           }

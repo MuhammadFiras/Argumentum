@@ -192,7 +192,9 @@
                             ?>
                             <?php if (!empty($answer['comments'])): ?>
                                 <?php foreach ($answer['comments'] as $comment): ?>
-                                    <div class="comment-item d-flex align-items-start mb-2" id="comment-item-<?= $comment['id_comment'] ?>">
+                                    <div class="comment-item d-flex align-items-start mb-2"
+                                        id="comment-item-<?= $comment['id_comment'] ?>"
+                                        data-answer-id="<?= $answer['id_answer'] ?>">
                                         <img src="<?= base_url('assets/images/profiles/' . esc($comment['photo_profile'] ?? 'default.jpg')) ?>" alt="<?= esc($comment['nama_lengkap']) ?>" class="rounded-circle me-2" width="24" height="24">
                                         <div class="comment-content w-100">
                                             <strong><?= esc($comment['nama_lengkap']) ?></strong>
