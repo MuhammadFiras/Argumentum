@@ -1,7 +1,7 @@
 <?= $this->extend('layout/auth_layout') ?>
 
 <?= $this->section('content') ?>
-<div class="register-container" data-aos="fade-up">
+<div class="register-container position-relative" data-aos="fade-up">
     <a class="btn back-btn" href="<?= site_url('/'); ?>"><i class="bi bi-arrow-left"></i> Kembali</a>
     <h2>Argumentum</h2>
     <p class="tagline">Bergabunglah dan mulai berbagi pengetahuan</p>
