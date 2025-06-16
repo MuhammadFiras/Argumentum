@@ -66,7 +66,7 @@
 
                 <div class="mb-3">
                     <label for="topics" class="form-label">Topik (Pilih minimal satu)</label>
-                    <div class="row p-2 border rounded <?= $validation->hasError('topics') ? 'is-invalid' : '' ?>">
+                    <div class="p-2 border rounded <?= $validation->hasError('topics') ? 'is-invalid' : '' ?>">
 
                         <?php if (!empty($all_topics)): ?>
                             <?php foreach ($all_topics as $topic): ?>
@@ -82,19 +82,17 @@
                                     $isChecked = in_array($topic['id'], $existing_topics);
                                 }
                                 ?>
-                                <div class="col-md-3 col-6">
-                                    <div class="form-check">
-                                        <input
-                                            class="form-check-input"
-                                            type="checkbox"
-                                            name="topics[]"
-                                            value="<?= esc($topic['id']) ?>"
-                                            id="topic-<?= esc($topic['id']) ?>"
-                                            <?= $isChecked ? 'checked' : '' ?>>
-                                        <label class="form-check-label" for="topic-<?= esc($topic['id']) ?>">
-                                            <?= esc($topic['name']) ?>
-                                        </label>
-                                    </div>
+                                <div class="form-check">
+                                    <input
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        name="topics[]"
+                                        value="<?= esc($topic['id']) ?>"
+                                        id="topic-<?= esc($topic['id']) ?>"
+                                        <?= $isChecked ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="topic-<?= esc($topic['id']) ?>">
+                                        <?= esc($topic['name']) ?>
+                                    </label>
                                 </div>
                             <?php endforeach; ?>
                         <?php else: ?>
