@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-  //== SCRIPT UNTUK RATING BINTANG ==
+  // SCRIPT UNTUK RATING BINTANG 
   const csrfName = document.querySelector('meta[name="csrf-token-name"]')?.getAttribute("content");
   let csrfHash = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
 
@@ -106,9 +106,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  //=======================================================
   //== SCRIPT UNTUK SUBMIT KOMENTAR (AJAX) - FINAL VERSION
-  //=======================================================
   document.querySelectorAll(".comment-form").forEach((form) => {
     form.addEventListener("submit", function (event) {
       event.preventDefault();
@@ -196,12 +194,9 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  //=======================================================
-  //== SCRIPT UNTUK EDIT & HAPUS KOMENTAR (AJAX)
-  //=======================================================
+  // SCRIPT UNTUK EDIT & HAPUS KOMENTAR (AJAX)
 
   document.body.addEventListener("click", function (event) {
-    // --- LOGIKA HAPUS KOMENTAR ---
     if (event.target.classList.contains("btn-delete-comment")) {
       event.preventDefault();
 
@@ -255,7 +250,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // --- LOGIKA TOMBOL EDIT DIKLIK ---
+    // LOGIKA TOMBOL EDIT DIKLIK
     if (event.target.classList.contains("btn-edit-comment")) {
       event.preventDefault();
       const commentId = event.target.dataset.commentId;
@@ -274,7 +269,7 @@ document.addEventListener("DOMContentLoaded", function () {
     `;
     }
 
-    // --- LOGIKA BATAL EDIT ---
+    // LOGIKA BATAL EDIT 
     if (event.target.classList.contains("btn-cancel-edit")) {
       event.preventDefault();
       const form = event.target.closest(".form-edit-comment");
@@ -285,7 +280,7 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById(`comment-edit-form-area-${commentId}`).innerHTML = "";
     }
 
-    // --- LOGIKA HAPUS RATING ---
+    // LOGIKA HAPUS RATING 
     if (event.target.classList.contains("btn-delete-rating")) {
       event.preventDefault();
 
@@ -331,7 +326,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // --- LOGIKA SUBMIT FORM EDIT KOMENTAR ---
+  // LOGIKA SUBMIT FORM EDIT KOMENTAR 
   document.body.addEventListener("submit", function (event) {
     if (event.target.classList.contains("form-edit-comment")) {
       event.preventDefault();

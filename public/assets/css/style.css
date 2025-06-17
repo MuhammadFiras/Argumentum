@@ -1,4 +1,4 @@
-/* == STYLING GLOBAL & LAYOUT UTAMA == */
+/* STYLING GLOBAL & LAYOUT UTAMA */
 
 body {
   font-family: Helvetica, sans-serif;
@@ -29,7 +29,7 @@ body {
   display: block !important;
 }
 
-/* == HALAMAN LOGIN & REGISTER == */
+/* HALAMAN LOGIN & REGISTER */
 
 .auth-body {
   background-size: cover;
@@ -103,7 +103,7 @@ body {
   margin-top: 20px;
 }
 
-/* == HALAMAN PERTANYAAN (HOME & ANSWER) == */
+/* HALAMAN PERTANYAAN (HOME & ANSWER) */
 .question-card:hover {
   transform: translateY(-6px);
   box-shadow: 0 10px 20px rgba(185, 43, 39, 0.25);
@@ -194,7 +194,7 @@ body {
   padding: 0.25rem 0.5rem;
 }
 
-/* == HALAMAN PROFIL (VIEW & EDIT) == */
+/* HALAMAN PROFIL (VIEW & EDIT) */
 
 .profile-header {
   background-color: white;
@@ -267,7 +267,7 @@ body {
   margin-top: 0.25rem;
 }
 
-/* == HALAMAN FORM (ASK, EDIT QUESTION/ANSWER) == */
+/* HALAMAN FORM (ASK, EDIT QUESTION/ANSWER) */
 
 .form-container {
   max-width: 700px;
@@ -299,7 +299,7 @@ body {
   font-size: 0.9em;
 }
 
-/* == BAGIAN KOMENTAR JAWABAN                   == */
+/* BAGIAN KOMENTAR JAWABAN */
 
 .answer-comments-section {
   font-size: 0.9em;
@@ -318,5 +318,5 @@ body {
 }
 
 .comment-form textarea {
-  resize: vertical; /* Izinkan user mengubah tinggi textarea */
+  resize: vertical; 
 }
