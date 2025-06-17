@@ -33,4 +33,9 @@ class UserModel extends Model
     {
         return $this->where('email', $email)->first();
     }
+
+    public function getCountAllUsers()
+    {
+        return $this->where('role', 'user')->countAllResults();
+    }
 }

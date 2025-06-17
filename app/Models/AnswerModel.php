@@ -67,4 +67,9 @@ class AnswerModel extends Model
         $builder->orderBy('a.created_at', 'DESC');
         return $builder->get()->getResultArray();
     }
+
+    public function getCountAllAnswers()
+    {
+        return $this->countAllResults();
+    }
 }

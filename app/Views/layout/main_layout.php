@@ -50,6 +50,9 @@
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton1">
                                 <li><a class="dropdown-item" href="<?= site_url('/profile') ?>">Profil Saya</a></li>
                                 <li><a class="dropdown-item" href="<?= site_url('/profile/edit') ?>">Edit Profil</a></li>
+                                <?php if(session()->get('role') === 'admin'): ?>
+                                    <li><a class="dropdown-item" href="<?= site_url('/admin/dashboard') ?>">Halaman Admin</a></li>
+                                <?php endif; ?>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
@@ -58,7 +61,7 @@
                         </div>
                     <?php else: ?>
                         <a href="<?= site_url('/login') ?>" class="btn btn-outline-primary me-2">Masuk</a>
-                        <a href="<?= site_url('auth/register') ?>" class="btn btn-primary">Daftar</a>
+                        <a href="<?= site_url('/register') ?>" class="btn btn-primary">Daftar</a>
                     <?php endif; ?>
                 </div>
             </div>

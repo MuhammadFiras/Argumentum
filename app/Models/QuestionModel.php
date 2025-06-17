@@ -73,4 +73,9 @@ class QuestionModel extends Model
         $query = $builder->get();
         return $query->getRowArray();
     }
+
+    public function getCountAllQuestions()
+    {
+        return $this->countAllResults();
+    }
 }

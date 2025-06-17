@@ -28,4 +28,9 @@ class AnswerCommentModel extends Model
 
         return $builder->get()->getResultArray();
     }
+
+    public function getCountAllComments()
+    {
+        return $this->countAllResults();
+    }
 }

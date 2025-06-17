@@ -54,7 +54,7 @@
     </form>
 
     <p class="mt-4 text-center">
-        Belum punya akun? <a href="<?= site_url('auth/register') ?>" class="btn-link-custom fw-bold">Daftar</a>
+        Belum punya akun? <a href="<?= site_url('/register') ?>" class="btn-link-custom fw-bold">Daftar</a>
     </p>
 
     <p class="footer-text">

@@ -8,22 +8,31 @@ use CodeIgniter\Router\RouteCollection;
 // Default route (halaman utama)
 $routes->get('/', 'Home::index');
 
-//Routes Pertanyaan Saya & Jawaban Saya
-$routes->get('/my-questions', 'Home::myQuestions');
-$routes->get('/my-answers', 'Home::myAnswers');
-
 // Routes buat login dan register
 $routes->get('/login', 'AuthController::login');
 $routes->post('/auth/processLogin', 'AuthController::processLogin');
-$routes->get('/auth/register', 'AuthController::register');
+$routes->get('/register', 'AuthController::register');
 $routes->post('/auth/processRegister', 'AuthController::processRegister');
-$routes->get('/auth/login', 'AuthController::login');
 $routes->get('/logout', 'AuthController::logout');
+
+//Route admin
+$routes->get('/admin/dashboard', 'AdminController::index', ['filter' => 'adminGuard']);
+$routes->get('/admin/tables/users', 'AdminController::usersTable', ['filter' => 'adminGuard']);
+$routes->get('/admin/tables/questions', 'AdminController::questionsTable', ['filter' => 'adminGuard']);
+$routes->get('/admin/tables/answers', 'AdminController::answersTable', ['filter' => 'adminGuard']);
+$routes->get('/admin/tables/answer-comments', 'AdminController::answerCommentsTable', ['filter' => 'adminGuard']);
+$routes->get('/admin/tables/topics', 'AdminController::topicsTable', ['filter' => 'adminGuard']);
+$routes->get('/admin/tables/answer-ratings', 'AdminController::answerRatingsTable', ['filter' => 'adminGuard']);
+$routes->get('/admin/tables/question-topics', 'AdminController::questionTopicsTable', ['filter' => 'adminGuard']);
+
+//Routes Pertanyaan Saya & Jawaban Saya
+$routes->get('/my-questions', 'Home::myQuestions', ['filter' => 'authGuard']);
+$routes->get('/my-answers', 'Home::myAnswers', ['filter' => 'authGuard']);
 
 // Routes buat CRUD Pertanyaan
 $routes->get('/ask', 'QuestionController::ask', ['filter' => 'authGuard']);
 $routes->post('/questions/create', 'QuestionController::create', ['filter' => 'authGuard']);
-$routes->get('/question/(:segment)', 'QuestionController::view/$1');
+$routes->get('/question/(:segment)', 'QuestionController::view/$1', ['filter' => 'authGuard']);
 $routes->get('/questions/edit/(:num)', 'QuestionController::edit/$1', ['filter' => 'authGuard']);
 $routes->post('/questions/update/(:num)', 'QuestionController::update/$1', ['filter' => 'authGuard']);
 $routes->post('/questions/delete/(:num)', 'QuestionController::delete/$1', ['filter' => 'authGuard']);
@@ -44,6 +53,6 @@ $routes->post('/answer/delete/(:num)', 'AnswerController::delete/$1', ['filter' 
 
 // Routes CRUD Profil Pengguna
 $routes->get('/profile', 'ProfileController::view', ['filter' => 'authGuard']);
-$routes->get('/profile/(:num)', 'ProfileController::view/$1');
+$routes->get('/profile/(:num)', 'ProfileController::view/$1', ['filter' => 'authGuard']);
 $routes->get('/profile/edit', 'ProfileController::edit', ['filter' => 'authGuard']);
 $routes->post('/profile/update', 'ProfileController::update', ['filter' => 'authGuard']);

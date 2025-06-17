@@ -16,10 +16,10 @@ class AuthController extends BaseController
 
     public function login()
     {
-        if (session()->get('isLoggedIn')) {
+        if (session()->get('isLoggedIn') && session()->get('role') !== 'admin') {
             return redirect()->to('/');
         }
-        
+
         $data = [
             'title' => 'Login - Argumentum',
             'validation' => \Config\Services::validation()
@@ -83,15 +83,15 @@ class AuthController extends BaseController
 
     public function register()
     {
-        if (session()->get('isLoggedIn')) {
+        if (session()->get('isLoggedIn') && session()->get('role') !== 'admin') {
             return redirect()->to('/');
         }
-        
+
         $data = [
             'title' => 'Daftar - Argumentum',
             'validation' => \Config\Services::validation()
         ];
-        
+
         return view('auth/register', $data);
     }
 
