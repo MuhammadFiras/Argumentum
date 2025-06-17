@@ -10,7 +10,12 @@
   <title><?= esc($title); ?></title>
   <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
   <link href="/assets/css/admin-styles.css" rel="stylesheet" />
-  <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+
+  <style>
+    .dt-buttons .btn {
+      border-radius: var(--bs-border-radius) !important;
+    }
+  </style>
 </head>
 
 <body class="sb-nav-fixed">
@@ -125,6 +130,45 @@
   <script src="/admin/demo/chart-bar-demo.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
   <script src="/assets/js/datatables-simple-demo.js"></script>
+  <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap4.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+
+  <script>
+    $(document).ready(function() {
+      $('#datatablesSimple').DataTable({
+        dom: 'Brt',
+        buttons: [{
+            extend: 'excelHtml5',
+            className: 'btn btn-success mb-3 me-2',
+            text: '<i class="fas fa-file-excel"></i> Export Excel'
+          },
+          {
+            extend: 'pdfHtml5',
+            className: 'btn btn-danger mb-3',
+            text: '<i class="fas fa-file-pdf"></i> Export PDF',
+            orientation: 'landscape',
+            pageSize: 'A4',
+            customize: function(doc) {
+              doc.styles.tableHeader.alignment = 'left';
+              doc.defaultStyle.fontSize = 8;
+              doc.styles.tableBodyEven.fontSize = 8;
+              doc.styles.tableBodyOdd.fontSize = 8;
+            }
+          }
+        ]
+      });
+    });
+  </script>
 </body>
 
 </html>
