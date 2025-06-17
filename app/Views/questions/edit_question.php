@@ -42,28 +42,6 @@
                     <?php endif; ?>
                 </div>
 
-                <!-- <div class="mb-3">
-                    <p for="topics" class="form-label">Topik</p>
-                    <div class="row">
-                        <div class="col">
-                            <input type="checkbox" name="Teknologi" id="Teknologi" value="teknologi">
-                            <label for="Teknologi">Teknologi</label>
-                        </div>
-                        <div class="col">
-                            <input type="checkbox" name="Kesehatan" id="Kesehatan" value="kesehatan">
-                            <label for="Kesehatan">Kesehatan</label>
-                        </div>
-                        <div class="col">
-                            <input type="checkbox" name="Olahraga" id="Olahraga" value="olahraga">
-                            <label for="Olahraga">Olahraga</label>
-                        </div>
-                        <div class="col">
-                            <input type="checkbox" name="Politik" id="Politik" value="politik">
-                            <label for="Politik">Politik</label>
-                        </div>
-                    </div>
-                </div> -->
-
                 <div class="mb-3">
                     <label for="topics" class="form-label">Topik (Pilih minimal satu)</label>
                     <div class="p-2 border rounded <?= $validation->hasError('topics') ? 'is-invalid' : '' ?>">
@@ -71,13 +49,10 @@
                         <?php if (!empty($all_topics)): ?>
                             <?php foreach ($all_topics as $topic): ?>
                                 <?php
-                                // Logika untuk menentukan apakah checkbox harus dicentang
                                 $isChecked = false;
-                                // Prioritas 1: Cek apakah ada data 'old' dari form (jika validasi gagal)
                                 if (old('topics')) {
                                     $isChecked = in_array($topic['id'], old('topics'));
                                 }
-                                // Prioritas 2: Jika tidak ada 'old' data, cek data dari database
                                 else if (!empty($existing_topics)) {
                                     $isChecked = in_array($topic['id'], $existing_topics);
                                 }

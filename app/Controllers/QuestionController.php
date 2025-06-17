@@ -14,7 +14,7 @@ class QuestionController extends BaseController
     protected $questionModel;
     protected $answerModel;
     protected $answerRatingModel;
-    protected $commentModel; // <-- TAMBAHKAN PROPERTY INI
+    protected $commentModel;
     protected $topicModel;
     protected $questionTopicModel;
     protected $helpers = ['form', 'url', 'text', 'date'];
@@ -24,8 +24,7 @@ class QuestionController extends BaseController
         $this->questionModel = new QuestionModel();
         $this->answerModel = new AnswerModel();
         $this->answerRatingModel = new AnswerRatingModel();
-        $this->commentModel = new AnswerCommentModel(); // <-- INSTANSIASI MODEL KOMENTAR
-        // Tambahkan instansiasi model baru
+        $this->commentModel = new AnswerCommentModel();
         $this->topicModel = new TopicModel();
         $this->questionTopicModel = new QuestionTopicModel();
     }
@@ -45,7 +44,6 @@ class QuestionController extends BaseController
         $loggedInUserId = session()->get('isLoggedIn') ? session()->get('user_id') : null;
 
         foreach ($answersFromDB as $answer) {
-            // Ambil data rating (kode yang sudah ada)
             $answer['rating_stats'] = $this->answerRatingModel->getAverageRating($answer['id_answer']);
             $userGivenRatingValue = 0;
             if ($loggedInUserId) {
@@ -55,8 +53,6 @@ class QuestionController extends BaseController
                 }
             }
             $answer['user_given_rating'] = $userGivenRatingValue;
-
-            // ==> PERUBAHAN DI SINI: Ambil komentar untuk setiap jawaban <==
             $answer['comments'] = $this->commentModel->getCommentsForAnswer($answer['id_answer']);
 
             $processedAnswers[] = $answer;
@@ -65,7 +61,7 @@ class QuestionController extends BaseController
         $data = [
             'title' => esc($question['title']),
             'question' => $question,
-            'answers' => $processedAnswers, // Sekarang array ini juga berisi 'comments'
+            'answers' => $processedAnswers,
             'validation_answer' => session()->getFlashdata('validation_answer') ?? \Config\Services::validation()
         ];
 
@@ -77,7 +73,7 @@ class QuestionController extends BaseController
         $data = [
             'title' => 'Tanya Pertanyaan Baru',
             'validation' => \Config\Services::validation(),
-            'topics' => $this->topicModel->findAll() // Ambil semua topik
+            'topics' => $this->topicModel->findAll()
         ];
         return view('questions/ask_question', $data);
     }
@@ -108,7 +104,6 @@ class QuestionController extends BaseController
             return redirect()->to('/ask')->withInput()->with('validation', $this->validator);
         }
 
-        // Mulai Transaksi Database untuk menjaga integritas data
         $db = \Config\Database::connect();
         $db->transStart();
 
@@ -128,11 +123,9 @@ class QuestionController extends BaseController
         ];
         $this->questionModel->insert($questionData);
 
-        // --- 2. Dapatkan ID dari Pertanyaan yang Baru Saja Dibuat ---
         $questionId = $this->questionModel->getInsertID();
 
-        // --- 3. Siapkan dan Simpan Data Topik ke Tabel Pivot ---
-        $topicIds = $this->request->getPost('topics'); // Ini adalah sebuah array dari checkbox
+        $topicIds = $this->request->getPost('topics');
         if (!empty($topicIds)) {
             $questionTopicData = [];
             foreach ($topicIds as $topicId) {
@@ -141,19 +134,14 @@ class QuestionController extends BaseController
                     'topic_id'    => $topicId
                 ];
             }
-            // Gunakan insertBatch agar lebih efisien
             $this->questionTopicModel->insertBatch($questionTopicData);
         }
 
-        // Selesaikan transaksi
         $db->transComplete();
 
-        // --- 4. Cek Status Transaksi dan Redirect ---
         if ($db->transStatus() === false) {
-            // Jika transaksi gagal, kembalikan dengan pesan error
             return redirect()->back()->withInput()->with('error', 'Gagal mempublikasikan pertanyaan karena kesalahan database.');
         } else {
-            // Jika transaksi berhasil, redirect dengan pesan sukses
             return redirect()->to('/')->with('success', 'Pertanyaan berhasil dipublikasikan!');
         }
     }
@@ -170,7 +158,6 @@ class QuestionController extends BaseController
             return redirect()->to('/')->with('error', 'Anda tidak memiliki hak untuk mengedit pertanyaan ini.');
         }
 
-        // Ambil topik yang sudah terhubung dengan pertanyaan ini
         $existingTopicIds = $this->questionTopicModel
             ->where('question_id', $id_question)
             ->findColumn('topic_id');
@@ -178,8 +165,8 @@ class QuestionController extends BaseController
         $data = [
             'title'           => 'Edit Pertanyaan: ' . esc($question['title']),
             'question'        => $question,
-            'all_topics'      => $this->topicModel->findAll(), // Ambil semua topik untuk pilihan
-            'existing_topics' => $existingTopicIds ?? [],     // Kirim ID topik yang sudah ada
+            'all_topics'      => $this->topicModel->findAll(),
+            'existing_topics' => $existingTopicIds ?? [],
             'validation'      => session()->getFlashdata('validation') ?? \Config\Services::validation()
         ];
         return view('questions/edit_question', $data);
@@ -247,10 +234,8 @@ class QuestionController extends BaseController
 
         $this->questionModel->update($id_question, $updateData);
 
-        // 2. Hapus semua relasi topik yang lama untuk pertanyaan ini
         $this->questionTopicModel->where('question_id', $id_question)->delete();
 
-        // 3. Masukkan relasi topik yang baru (sama seperti di fungsi create)
         $topicIds = $this->request->getPost('topics');
         if (!empty($topicIds)) {
             $questionTopicData = [];

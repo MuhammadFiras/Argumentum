@@ -42,27 +42,6 @@
                 <?php endif; ?>
             </div>
 
-            <!-- <div class="mb-3">
-                <p for="topics" class="form-label">Topik</p>
-                <div class="row">
-                    <div class="col">
-                        <input type="checkbox" name="Teknologi" id="Teknologi" value="teknologi">
-                        <label for="Teknologi">Teknologi</label>
-                    </div>
-                    <div class="col">
-                        <input type="checkbox" name="Kesehatan" id="Kesehatan" value="kesehatan">
-                        <label for="Kesehatan">Kesehatan</label>
-                    </div>
-                    <div class="col">
-                        <input type="checkbox" name="Olahraga" id="Olahraga" value="olahraga">
-                        <label for="Olahraga">Olahraga</label>
-                    </div>
-                    <div class="col">
-                        <input type="checkbox" name="Politik" id="Politik" value="politik">
-                        <label for="Politik">Politik</label>
-                    </div>
-                </div>
-            </div> -->
             <div class="mb-3">
                 <label for="topics" class="form-label">Topik (Pilih minimal satu)</label>
                 <div class="p-2 border rounded <?= $validation->hasError('topics') ? 'is-invalid' : '' ?>">

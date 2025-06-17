@@ -34,7 +34,6 @@
                 <?php if (!empty($question['topics'])): ?>
                     <div class="topics-container d-flex align-items-center ms-3">
                         <?php
-                        // Pecah string topik menjadi array
                         $topic_array = explode(', ', $question['topics']);
                         ?>
                         <?php foreach ($topic_array as $topic_name): ?>
@@ -132,16 +131,6 @@
                                 (<span id="count-rating-<?= esc($answer['id_answer']) ?>"><?= esc($answer['rating_stats']['count']) ?></span> suara)
                             </span>
 
-                            <!-- <?php if (session()->get('isLoggedIn') && session()->get('user_id') != $answer['id_user']): ?>
-                                <div class="star-rating mt-1" data-answer-id="<?= esc($answer['id_answer']) ?>">
-                                    <small>Beri rating:</small>
-                                    <?php $userGivenRating = $answer['user_given_rating']; ?>
-                                    <?php for ($i = 1; $i <= 5; $i++): ?>
-                                        <span class="star <?= ($i <= $userGivenRating) ? 'rated' : '' ?>" data-value="<?= $i ?>">&#9733;</span>
-                                    <?php endfor; ?>
-                                </div>
-                                <div id="rating-feedback-message-<?= esc($answer['id_answer']) ?>" class="rating-feedback-message"></div>
-                            <?php endif; ?> -->
                             <?php if (session()->get('isLoggedIn') && session()->get('user_id') != $answer['id_user']): ?>
                                 <div class="star-rating-container d-flex align-items-center">
                                     <div class="star-rating mt-1" data-answer-id="<?= esc($answer['id_answer']) ?>" data-current-rating="<?= esc($answer['user_given_rating']) ?>">
@@ -200,7 +189,7 @@
                         <h6>Komentar (<span id="comment-count-<?= $answer['id_answer'] ?>"><?= count($answer['comments']) ?></span>)</h6>
 
                         <div class="comment-list" id="comment-list-<?= $answer['id_answer'] ?>">
-                            <?php // Loop untuk menampilkan komentar yang sudah ada 
+                            <?php
                             ?>
                             <?php if (!empty($answer['comments'])): ?>
                                 <?php foreach ($answer['comments'] as $comment): ?>
@@ -219,21 +208,40 @@
                                             <div class="comment-edit-form-area" id="comment-edit-form-area-<?= $comment['id_comment'] ?>" style="display: none;">
                                             </div>
 
-                                            <?php if (session()->get('isLoggedIn') && session()->get('user_id') == $comment['id_user']): ?>
+                                            <!-- GANTI BLOK INI -->
+                                            <?php
+                                            // Definisikan role dan kepemilikan di sini agar lebih rapi
+                                            $isCommentOwner = (session()->get('isLoggedIn') && session()->get('user_id') == $comment['id_user']);
+                                            $isAdmin = (session()->get('isLoggedIn') && session()->get('role') == 'admin');
+                                            ?>
+
+                                            <?php if ($isCommentOwner || $isAdmin): ?>
                                                 <div class="comment-actions mt-1">
-                                                    <a href="#" class="btn-edit-comment small text-decoration-none" data-comment-id="<?= $comment['id_comment'] ?>">Edit</a>
-                                                    ·
-                                                    <a href="#" class="btn-delete-comment small text-decoration-none text-danger" data-comment-id="<?= $comment['id_comment'] ?>">Hapus</a>
+                                                    <?php if ($isCommentOwner): // Tombol edit hanya untuk pemilik 
+                                                    ?>
+                                                        <a href="#" class="btn-edit-comment small text-decoration-none" data-comment-id="<?= $comment['id_comment'] ?>">Edit</a>
+                                                        ·
+                                                    <?php endif; ?>
+
+                                                    <?php
+                                                    // Tentukan apakah ini admin yang menghapus komentar orang lain
+                                                    $isAdminDelete = $isAdmin && !$isCommentOwner;
+                                                    ?>
+                                                    <a href="#"
+                                                        class="btn-delete-comment small text-decoration-none text-danger"
+                                                        data-comment-id="<?= $comment['id_comment'] ?>"
+                                                        data-is-admin-delete="<?= $isAdminDelete ? 'true' : 'false' ?>">
+                                                        Hapus
+                                                    </a>
                                                 </div>
                                             <?php endif; ?>
+                                            <!-- AKHIR BLOK YANG DIGANTI -->
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </div>
 
-                        <?php // Form untuk menambah komentar baru 
-                        ?>
                         <?php if (session()->get('isLoggedIn')): ?>
                             <form class="comment-form mt-3" data-answer-id="<?= $answer['id_answer'] ?>" action="<?= site_url('comment/create/' . $answer['id_answer']) ?>" method="POST">
                                 <div class="input-group">

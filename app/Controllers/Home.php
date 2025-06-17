@@ -22,17 +22,14 @@ class Home extends BaseController
 
     public function index(): string
     {
-        // 1. Ambil ID topik dari URL query string (misal: /?topic_id=1)
         $topicId = $this->request->getGet('topic_id');
 
         if (empty($topicId)) {
             $topicId = null;
         }
 
-        // 2. Ambil pertanyaan (sudah difilter jika topicId ada)
         $questions = $this->questionModel->getAllQuestionsWithDetails($topicId);
 
-        // 3. Ambil semua topik untuk ditampilkan sebagai tombol filter
         $allTopics = $this->topicModel->findAll();
 
         $data = [
@@ -40,8 +37,8 @@ class Home extends BaseController
             'section'        => 'home',
             'header'         => 'Daftar Pertanyaan',
             'questions'      => $questions,
-            'all_topics'     => $allTopics, // Kirim semua topik ke view
-            'current_topic_id' => $topicId    // Kirim ID filter yang aktif ke view
+            'all_topics'     => $allTopics,
+            'current_topic_id' => $topicId
         ];
         return view('home', $data);
     }

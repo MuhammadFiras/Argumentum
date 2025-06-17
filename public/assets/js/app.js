@@ -1,20 +1,12 @@
 document.addEventListener("DOMContentLoaded", function () {
   //== SCRIPT UNTUK RATING BINTANG ==
-  // Ambil nama dan hash CSRF dari meta tag yang benar
-  const csrfName = document
-    .querySelector('meta[name="csrf-token-name"]')
-    ?.getAttribute("content");
-  let csrfHash = document
-    .querySelector('meta[name="csrf-token"]')
-    ?.getAttribute("content");
+  const csrfName = document.querySelector('meta[name="csrf-token-name"]')?.getAttribute("content");
+  let csrfHash = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
 
-  // Fungsi untuk memperbarui token CSRF setelah setiap request AJAX
   const updateCsrfToken = (newHash) => {
     if (newHash) {
       csrfHash = newHash;
-      document
-        .querySelector('meta[name="csrf-token"]')
-        .setAttribute("content", newHash);
+      document.querySelector('meta[name="csrf-token"]').setAttribute("content", newHash);
     }
   };
 
@@ -24,13 +16,8 @@ document.addEventListener("DOMContentLoaded", function () {
       const ratingValue = this.dataset.value;
       const answerId = parent.dataset.answerId;
       const originalRating = parent.dataset.currentRating;
+      const feedbackDiv = document.getElementById(`rating-feedback-message-${answerId}`);
 
-      // ===== FIX: Aktifkan kembali baris ini =====
-      const feedbackDiv = document.getElementById(
-        `rating-feedback-message-${answerId}`
-      );
-
-      // Langsung perbarui tampilan bintang (Optimistic Update)
       parent.querySelectorAll(".star").forEach((s) => {
         s.classList.remove("rated");
         if (parseInt(s.dataset.value) <= ratingValue) {
@@ -38,7 +25,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       });
 
-      // Tampilkan pesan sementara
       if (feedbackDiv) {
         feedbackDiv.textContent = "Menyimpan rating...";
         feedbackDiv.className = "rating-feedback-message text-info";
@@ -70,21 +56,12 @@ document.addEventListener("DOMContentLoaded", function () {
               feedbackDiv.className = "rating-feedback-message text-success";
             }
 
-            // === SEKARANG KODE INI AKAN BERJALAN ===
-            // Penyempurnaan: Format angka agar selalu ada satu desimal (misal: 4.0)
-            document.getElementById(`avg-rating-${answerId}`).textContent =
-              parseFloat(data.average_rating).toFixed(1);
-            document.getElementById(`count-rating-${answerId}`).textContent =
-              data.rating_count;
+            document.getElementById(`avg-rating-${answerId}`).textContent = parseFloat(data.average_rating).toFixed(1);
+            document.getElementById(`count-rating-${answerId}`).textContent = data.rating_count;
 
-            // Update rating saat ini untuk klik berikutnya
             parent.dataset.currentRating = ratingValue;
 
-            // ===== FIX ADA DI SINI =====
-            // Setelah berhasil memberi rating, cari tombol 'Hapus Rating' dan tampilkan.
-            const deleteButton = parent
-              .closest(".star-rating-container")
-              .querySelector(".btn-delete-rating");
+            const deleteButton = parent.closest(".star-rating-container").querySelector(".btn-delete-rating");
             if (deleteButton) {
               deleteButton.style.display = "inline";
             }
@@ -101,7 +78,6 @@ document.addEventListener("DOMContentLoaded", function () {
             alert(error.message || "Terjadi kesalahan.");
           }
 
-          // Kembalikan bintang ke rating semula jika gagal
           parent.querySelectorAll(".star").forEach((s) => {
             s.classList.remove("rated");
             if (parseInt(s.dataset.value) <= originalRating) {
@@ -145,15 +121,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (commentText === "") return;
 
-      // FormData untuk request POST
       const formData = new URLSearchParams();
       formData.append("comment_text", commentText);
       formData.append(csrfName, csrfHash);
 
-      // Tombol loading
       submitButton.disabled = true;
-      submitButton.innerHTML =
-        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+      submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
 
       fetch(this.action, {
         method: "POST",
@@ -165,33 +138,26 @@ document.addEventListener("DOMContentLoaded", function () {
       })
         .then((response) => {
           updateCsrfToken(response.headers.get("X-CSRF-TOKEN"));
-          if (!response.ok)
-            return response.json().then((err) => Promise.reject(err));
+          if (!response.ok) return response.json().then((err) => Promise.reject(err));
           return response.json();
         })
         .then((data) => {
           if (data.success) {
             const newComment = data.comment;
             const commentId = data.comment_id ?? newComment.id_comment;
-            const photoUrl = `${baseUrl}/assets/images/profiles/${
-              newComment.photo_profile ?? "default.jpg"
-            }`;
+            const photoUrl = `${baseUrl}/assets/images/profiles/${newComment.photo_profile ?? "default.jpg"}`;
             const isOwner = data.is_owner ?? true; // diasumsikan true jika tidak dikirim
 
             const newCommentHtml = `
             <div class="comment-item d-flex align-items-start mb-2"
               id="comment-item-${commentId}"
               data-answer-id="${answerId}">
-              <img src="${photoUrl}" alt="${
-              newComment.nama_lengkap
-            }" class="rounded-circle me-2" width="24" height="24">
+              <img src="${photoUrl}" alt="${newComment.nama_lengkap}" class="rounded-circle me-2" width="24" height="24">
               <div class="comment-content w-100">
                 <strong>${newComment.nama_lengkap}</strong>
                 <div id="comment-text-display-${commentId}">
                   <p class="mb-0">${newComment.comment_text}</p>
-                  <small class="text-muted">${
-                    newComment.created_at ?? "Baru saja"
-                  }</small>
+                  <small class="text-muted">${newComment.created_at ?? "Baru saja"}</small>
                 </div>
                 <div class="comment-edit-form-area" id="comment-edit-form-area-${commentId}" style="display: none;"></div>
                 ${
@@ -207,19 +173,13 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
           `;
 
-            // Tambahkan komentar ke DOM
             commentList.insertAdjacentHTML("beforeend", newCommentHtml);
 
-            // Reset textarea
             textarea.value = "";
 
-            // Update jumlah komentar
-            const commentCountEl = document.getElementById(
-              `comment-count-${answerId}`
-            );
+            const commentCountEl = document.getElementById(`comment-count-${answerId}`);
             if (commentCountEl) {
-              commentCountEl.textContent =
-                parseInt(commentCountEl.textContent) + 1;
+              commentCountEl.textContent = parseInt(commentCountEl.textContent) + 1;
             }
           } else {
             alert("Gagal menambahkan komentar: " + data.message);
@@ -245,14 +205,20 @@ document.addEventListener("DOMContentLoaded", function () {
     if (event.target.classList.contains("btn-delete-comment")) {
       event.preventDefault();
 
-      if (!confirm("Apakah Anda yakin ingin menghapus komentar ini?")) {
+      const deleteButton = event.target;
+      const isAdminDelete = deleteButton.dataset.isAdminDelete === "true";
+
+      let confirmMessage = "Apakah Anda yakin ingin menghapus komentar ini?";
+      if (isAdminDelete) {
+        confirmMessage += " (Sebagai Admin)";
+      }
+
+      if (!confirm(confirmMessage)) {
         return;
       }
 
-      const commentId = event.target.dataset.commentId;
-      const commentItemEl = document.getElementById(
-        `comment-item-${commentId}`
-      );
+      const commentId = deleteButton.dataset.commentId;
+      const commentItemEl = document.getElementById(`comment-item-${commentId}`);
       const answerId = commentItemEl.dataset.answerId;
 
       const formData = new URLSearchParams();
@@ -265,8 +231,7 @@ document.addEventListener("DOMContentLoaded", function () {
       })
         .then((response) => {
           updateCsrfToken(response.headers.get("X-CSRF-TOKEN"));
-          if (!response.ok)
-            return response.json().then((err) => Promise.reject(err));
+          if (!response.ok) return response.json().then((err) => Promise.reject(err));
           return response.json();
         })
         .then((data) => {
@@ -275,14 +240,9 @@ document.addEventListener("DOMContentLoaded", function () {
             commentItemEl.style.opacity = "0";
             setTimeout(() => {
               commentItemEl.remove();
-              const commentCountEl = document.getElementById(
-                `comment-count-${answerId}`
-              );
+              const commentCountEl = document.getElementById(`comment-count-${answerId}`);
               if (commentCountEl) {
-                commentCountEl.textContent = Math.max(
-                  0,
-                  parseInt(commentCountEl.textContent) - 1
-                );
+                commentCountEl.textContent = Math.max(0, parseInt(commentCountEl.textContent) - 1);
               }
             }, 500);
           } else {
@@ -299,12 +259,8 @@ document.addEventListener("DOMContentLoaded", function () {
     if (event.target.classList.contains("btn-edit-comment")) {
       event.preventDefault();
       const commentId = event.target.dataset.commentId;
-      const textDisplayEl = document.getElementById(
-        `comment-text-display-${commentId}`
-      );
-      const editFormArea = document.getElementById(
-        `comment-edit-form-area-${commentId}`
-      );
+      const textDisplayEl = document.getElementById(`comment-text-display-${commentId}`);
+      const editFormArea = document.getElementById(`comment-edit-form-area-${commentId}`);
       const originalText = textDisplayEl.querySelector("p").textContent;
 
       textDisplayEl.style.display = "none";
@@ -324,28 +280,20 @@ document.addEventListener("DOMContentLoaded", function () {
       const form = event.target.closest(".form-edit-comment");
       const commentId = form.dataset.commentId;
 
-      document.getElementById(
-        `comment-text-display-${commentId}`
-      ).style.display = "block";
-      document.getElementById(
-        `comment-edit-form-area-${commentId}`
-      ).style.display = "none";
-      document.getElementById(`comment-edit-form-area-${commentId}`).innerHTML =
-        "";
+      document.getElementById(`comment-text-display-${commentId}`).style.display = "block";
+      document.getElementById(`comment-edit-form-area-${commentId}`).style.display = "none";
+      document.getElementById(`comment-edit-form-area-${commentId}`).innerHTML = "";
     }
 
     // --- LOGIKA HAPUS RATING ---
     if (event.target.classList.contains("btn-delete-rating")) {
       event.preventDefault();
 
-      if (!confirm("Anda yakin ingin menghapus rating Anda untuk jawaban ini?"))
-        return;
+      if (!confirm("Anda yakin ingin menghapus rating Anda untuk jawaban ini?")) return;
 
       const deleteButton = event.target;
       const answerId = deleteButton.dataset.answerId;
-      const starRatingDiv = document.querySelector(
-        `.star-rating[data-answer-id="${answerId}"]`
-      );
+      const starRatingDiv = document.querySelector(`.star-rating[data-answer-id="${answerId}"]`);
 
       const formData = new URLSearchParams();
       formData.append(csrfName, csrfHash);
@@ -357,24 +305,17 @@ document.addEventListener("DOMContentLoaded", function () {
       })
         .then((response) => {
           updateCsrfToken(response.headers.get("X-CSRF-TOKEN"));
-          if (!response.ok)
-            return response.json().then((err) => Promise.reject(err));
+          if (!response.ok) return response.json().then((err) => Promise.reject(err));
           return response.json();
         })
         .then((data) => {
           if (data.success) {
-            document.getElementById(`avg-rating-${answerId}`).textContent =
-              data.average_rating;
-            document.getElementById(`count-rating-${answerId}`).textContent =
-              data.rating_count;
-            starRatingDiv
-              .querySelectorAll(".star")
-              .forEach((s) => s.classList.remove("rated"));
+            document.getElementById(`avg-rating-${answerId}`).textContent = data.average_rating;
+            document.getElementById(`count-rating-${answerId}`).textContent = data.rating_count;
+            starRatingDiv.querySelectorAll(".star").forEach((s) => s.classList.remove("rated"));
             starRatingDiv.dataset.currentRating = "0";
             deleteButton.style.display = "none";
-            const feedbackDiv = document.getElementById(
-              `rating-feedback-message-${answerId}`
-            );
+            const feedbackDiv = document.getElementById(`rating-feedback-message-${answerId}`);
             if (feedbackDiv) {
               feedbackDiv.textContent = data.message;
               feedbackDiv.className = "rating-feedback-message text-success";
@@ -416,23 +357,16 @@ document.addEventListener("DOMContentLoaded", function () {
       })
         .then((response) => {
           updateCsrfToken(response.headers.get("X-CSRF-TOKEN"));
-          if (!response.ok)
-            return response.json().then((err) => Promise.reject(err));
+          if (!response.ok) return response.json().then((err) => Promise.reject(err));
           return response.json();
         })
         .then((data) => {
           if (data.success) {
-            const textDisplayEl = document.getElementById(
-              `comment-text-display-${commentId}`
-            );
+            const textDisplayEl = document.getElementById(`comment-text-display-${commentId}`);
             textDisplayEl.querySelector("p").textContent = data.updated_text;
             textDisplayEl.style.display = "block";
-            document.getElementById(
-              `comment-edit-form-area-${commentId}`
-            ).style.display = "none";
-            document.getElementById(
-              `comment-edit-form-area-${commentId}`
-            ).innerHTML = "";
+            document.getElementById(`comment-edit-form-area-${commentId}`).style.display = "none";
+            document.getElementById(`comment-edit-form-area-${commentId}`).innerHTML = "";
           } else {
             alert("Gagal update: " + data.message);
           }

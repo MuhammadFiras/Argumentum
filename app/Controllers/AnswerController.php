@@ -191,7 +191,6 @@ class AnswerController extends BaseController
             'content' => $this->request->getPost('answer_content')
         ];
 
-        // Dapatkan slug pertanyaan untuk redirect
         $question = $this->questionModel->find($answer['id_question']);
         $slug = $question ? $question['slug'] : '';
 
@@ -242,11 +241,9 @@ class AnswerController extends BaseController
     {
         $userId = session()->get('user_id');
 
-        // Hapus rating dari database menggunakan method yang baru kita buat
         $deleted = $this->answerRatingModel->deleteRatingByUser($id_answer, $userId);
 
         if ($deleted) {
-            // Setelah berhasil dihapus, hitung ulang statistik rating
             $newStats = $this->answerRatingModel->getAverageRating($id_answer);
 
             return $this->response->setJSON([
@@ -256,7 +253,6 @@ class AnswerController extends BaseController
                 'rating_count' => $newStats['count']
             ]);
         } else {
-            // Ini bisa terjadi jika pengguna mencoba menghapus rating yang tidak ada
             return $this->response->setStatusCode(404)->setJSON([
                 'success' => false,
                 'message' => 'Rating tidak ditemukan untuk dihapus.'
