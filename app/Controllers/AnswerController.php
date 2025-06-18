@@ -140,7 +140,6 @@ class AnswerController extends BaseController
             return redirect()->back()->with('error', 'Jawaban tidak ditemukan.');
         }
 
-        // Otorisasi: Hanya pemilik jawaban yang boleh mengedit
         if (!session()->get('isLoggedIn') || $answer['id_user'] != session()->get('user_id')) {
             $question = $this->questionModel->find($answer['id_question']);
             $slug = $question ? $question['slug'] : '';
@@ -167,7 +166,6 @@ class AnswerController extends BaseController
             return redirect()->back()->with('error', 'Jawaban tidak ditemukan.');
         }
 
-        // Otorisasi: Hanya pemilik jawaban yang boleh mengupdate
         if (!session()->get('isLoggedIn') || $answer['id_user'] != session()->get('user_id')) {
             $question = $this->questionModel->find($answer['id_question']);
             $slug = $question ? $question['slug'] : '';
