@@ -22,10 +22,18 @@ class AnswerModel extends Model
     {
         $builder = $this->db->table('answers a');
         $builder->select('a.*, u.nama_lengkap as user_nama, u.photo_profile as user_photo');
+        $ratingSubquery = '(SELECT id_answer, AVG(rating) as average_rating, COUNT(id_rating) as rating_count FROM answer_ratings GROUP BY id_answer)';
+        $builder->join($ratingSubquery . ' ar', 'a.id_answer = ar.id_answer', 'left');        
         $builder->join('users u', 'u.id_user = a.id_user');
         $builder->where('a.id_question', $id_question);
-        $builder->orderBy('a.is_best_answer', 'DESC');
-        $builder->orderBy('a.created_at', 'ASC');
+      
+        $orderByClause = "a.is_best_answer DESC, 
+                        COALESCE(ar.average_rating, 0) DESC, 
+                        COALESCE(ar.rating_count, 0) DESC, 
+                        a.created_at DESC";
+
+        $builder->orderBy($orderByClause);
+        
         return $builder->get()->getResultArray();
     }
 
