@@ -1,5 +1,6 @@
 <?php
 
+use App\Controllers\ProfileController;
 use CodeIgniter\Router\RouteCollection;
 
 /**
@@ -24,6 +25,7 @@ $routes->get('/admin/tables/answer-comments', 'AdminController::answerCommentsTa
 $routes->get('/admin/tables/topics', 'AdminController::topicsTable', ['filter' => 'adminGuard']);
 $routes->get('/admin/tables/answer-ratings', 'AdminController::answerRatingsTable', ['filter' => 'adminGuard']);
 $routes->get('/admin/tables/question-topics', 'AdminController::questionTopicsTable', ['filter' => 'adminGuard']);
+$routes->get('/admin/form/add-topics', 'TopicController::addForm', ['filter' => 'adminGuard']);
 
 //Routes Pertanyaan Saya & Jawaban Saya
 $routes->get('/my-questions', 'Home::myQuestions', ['filter' => 'authGuard']);
@@ -56,3 +58,4 @@ $routes->get('/profile', 'ProfileController::view', ['filter' => 'authGuard']);
 $routes->get('/profile/(:num)', 'ProfileController::view/$1', ['filter' => 'authGuard']);
 $routes->get('/profile/edit', 'ProfileController::edit', ['filter' => 'authGuard']);
 $routes->post('/profile/update', 'ProfileController::update', ['filter' => 'authGuard']);
+$routes->delete('/profile/delete/(:num)', 'ProfileController::delete/$1', ['filter' => 'adminGuard']);

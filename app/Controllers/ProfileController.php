@@ -81,14 +81,13 @@ class ProfileController extends BaseController
         if (!session()->get('isLoggedIn')) {
             return redirect()->to('/login')->with('error', 'Sesi Anda telah berakhir. Silakan login kembali.');
         }
-        
+
         $userId = session()->get('user_id');
         $user = $this->userModel->find($userId);
 
-        if($user['nama_lengkap'] == $this->request->getVar('nama_lengkap')){
+        if ($user['nama_lengkap'] == $this->request->getVar('nama_lengkap')) {
             $ruleNamaLengkap = 'required|min_length[3]|max_length[100]';
-        }
-        else{
+        } else {
             $ruleNamaLengkap = 'required|min_length[3]|max_length[100]|is_unique[users.nama_lengkap]';
         }
 
@@ -98,8 +97,8 @@ class ProfileController extends BaseController
                 'errors' => [
                     'required' => 'Nama lengkap wajib diisi.',
                     'min_length' => 'Nama lengkap minimal {param} karakter.',
-                    'max_length' => 'Nama lengkap maksimal {param} karakter.', 
-                    'is_unique' => 'Nama lengkap sudah ada.'               
+                    'max_length' => 'Nama lengkap maksimal {param} karakter.',
+                    'is_unique' => 'Nama lengkap sudah ada.'
                 ]
             ],
             'description' => [
@@ -115,17 +114,17 @@ class ProfileController extends BaseController
                 ]
             ],
             'linkedin_url' => [
-                'rules' => 'permit_empty|max_length[255]|valid_url_strict', 
+                'rules' => 'permit_empty|max_length[255]|valid_url_strict',
                 'errors' => [
                     'max_length' => "Karakter dalam Link melebihi 255 karakter",
-                    'valid_url_strict' => 'Link LinkedIn tidak valid. Pastikan diawali dengan http:// atau https://', 
+                    'valid_url_strict' => 'Link LinkedIn tidak valid. Pastikan diawali dengan http:// atau https://',
                 ]
             ],
             'instagram_url' => [
-                'rules' => 'permit_empty|max_length[255]|valid_url_strict', 
+                'rules' => 'permit_empty|max_length[255]|valid_url_strict',
                 'errors' => [
                     'max_length' => "Karakter dalam Link melebihi 255 karakter",
-                    'valid_url_strict' => 'Link Instagram tidak valid. Pastikan diawali dengan http:// atau https://', 
+                    'valid_url_strict' => 'Link Instagram tidak valid. Pastikan diawali dengan http:// atau https://',
                 ]
             ],
             'photo_profile' => [
@@ -151,7 +150,7 @@ class ProfileController extends BaseController
             $targetPath = FCPATH . 'assets/images/profiles';
 
             if ($photoProfileFile->move($targetPath, $newName)) {
-                if($photoProfileName != 'default.jpg' && file_exists($targetPath . '/' . $photoProfileName)){
+                if ($photoProfileName != 'default.jpg' && file_exists($targetPath . '/' . $photoProfileName)) {
                     unlink($targetPath . '/' . $photoProfileName);
                 }
                 $photoProfileName = $newName;
@@ -174,6 +173,15 @@ class ProfileController extends BaseController
             return redirect()->to('/profile')->with('success', 'Profil berhasil diperbarui.');
         } else {
             return redirect()->to('/profile/edit')->withInput()->with('error', 'Gagal memperbarui profil.');
+        }
+    }
+
+    public function delete($userId)
+    {
+        if ($this->userModel->delete($userId)) {
+            return redirect()->to('/admin/tables/users')->with('success', 'Data User berhasil dihapus.');
+        } else {
+            return redirect()->to('/admin/tables/users')->with('error', 'Gagal menghapus data User.');
         }
     }
 }

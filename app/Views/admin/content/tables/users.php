@@ -23,6 +23,7 @@
           <th>Instagram</th>
           <th>Created at</th>
           <th>Updated at</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tfoot>
@@ -39,6 +40,7 @@
           <th>Instagram</th>
           <th>Created at</th>
           <th>Updated at</th>
+          <th>Action</th>
         </tr>
       </tfoot>
       <tbody>
@@ -65,6 +67,14 @@
               <td><?= esc($user['instagram_url']); ?></td>
               <td><?= CodeIgniter\I18n\Time::parse($user['created_at'])->toLocalizedString('d MMM yyyy'); ?></td>
               <td><?= CodeIgniter\I18n\Time::parse($user['updated_at'])->toLocalizedString('d MMM yyyy'); ?></td>
+              <td>
+                <div class="d-flex justify-content-center">
+                  <form action="<?= site_url('/profile/delete/' . esc($user['id_user']))?>" method="post" class="d-inline">
+                    <input type="hidden" name="_method" value="DELETE">
+                    <button class="btn btn-sm btn-danger" type="submit" onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?');"><i class="fas fa-trash"></i></button>
+                  </form>
+                </div>
+              </td>
             </tr>
           <?php endforeach; ?>
         <?php endif; ?>
