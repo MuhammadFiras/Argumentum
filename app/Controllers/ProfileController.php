@@ -126,7 +126,7 @@ class ProfileController extends BaseController
                 'errors' => [
                     'max_length' => "Karakter dalam Link melebihi 255 karakter",
                     'valid_url_strict' => "Pastikan diawali dengan http:// atau https:// ",
-                    'is_instagram_url' => 'Link bukan dari LinkedIn.com ', 
+                    'is_instagram_url' => 'Link bukan dari Instagram', 
                 ]
             ],
             'photo_profile' => [
