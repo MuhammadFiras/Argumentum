@@ -26,6 +26,10 @@ $routes->get('/admin/tables/topics', 'AdminController::topicsTable', ['filter' =
 $routes->get('/admin/tables/answer-ratings', 'AdminController::answerRatingsTable', ['filter' => 'adminGuard']);
 $routes->get('/admin/tables/question-topics', 'AdminController::questionTopicsTable', ['filter' => 'adminGuard']);
 $routes->get('/admin/form/add-topics', 'TopicController::addForm', ['filter' => 'adminGuard']);
+$routes->get('/admin/form/edit-topics/(:num)', 'TopicController::editForm/$1', ['filter' => 'adminGuard']);
+$routes->post('/admin/form/topics-insert', 'TopicController::insert', ['filter' => 'adminGuard']);
+$routes->post('/admin/form/topics-update/(:num)', 'TopicController::update/$1', ['filter' => 'adminGuard']);
+$routes->delete('/admin/form/topics-delete/(:num)', 'TopicController::delete/$1', ['filter' => 'adminGuard']);
 
 //Routes Pertanyaan Saya & Jawaban Saya
 $routes->get('/my-questions', 'Home::myQuestions', ['filter' => 'authGuard']);
