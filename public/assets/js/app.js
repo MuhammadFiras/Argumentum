@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // SCRIPT UNTUK RATING BINTANG 
+   
   const csrfName = document.querySelector('meta[name="csrf-token-name"]')?.getAttribute("content");
   let csrfHash = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
 
@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   };
 
+  // SCRIPT UNTUK RATING BINTANG
   document.querySelectorAll(".star-rating .star").forEach((star) => {
     star.addEventListener("click", function () {
       const parent = this.closest(".star-rating");
