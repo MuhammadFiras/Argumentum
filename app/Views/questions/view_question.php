@@ -208,23 +208,20 @@
                                             <div class="comment-edit-form-area" id="comment-edit-form-area-<?= $comment['id_comment'] ?>" style="display: none;">
                                             </div>
 
-                                            <!-- GANTI BLOK INI -->
                                             <?php
-                                            // Definisikan role dan kepemilikan di sini agar lebih rapi
                                             $isCommentOwner = (session()->get('isLoggedIn') && session()->get('user_id') == $comment['id_user']);
                                             $isAdmin = (session()->get('isLoggedIn') && session()->get('role') == 'admin');
                                             ?>
 
                                             <?php if ($isCommentOwner || $isAdmin): ?>
                                                 <div class="comment-actions mt-1">
-                                                    <?php if ($isCommentOwner): // Tombol edit hanya untuk pemilik 
+                                                    <?php if ($isCommentOwner): 
                                                     ?>
                                                         <a href="#" class="btn-edit-comment small text-decoration-none" data-comment-id="<?= $comment['id_comment'] ?>">Edit</a>
                                                         ·
                                                     <?php endif; ?>
 
                                                     <?php
-                                                    // Tentukan apakah ini admin yang menghapus komentar orang lain
                                                     $isAdminDelete = $isAdmin && !$isCommentOwner;
                                                     ?>
                                                     <a href="#"
@@ -235,7 +232,7 @@
                                                     </a>
                                                 </div>
                                             <?php endif; ?>
-                                            <!-- AKHIR BLOK YANG DIGANTI -->
+            
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
