@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\TopicModel;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class TopicController extends BaseController
 {
@@ -36,6 +37,15 @@ class TopicController extends BaseController
     ];
 
     return view('admin/content/form/edit_topic', $data);
+  }
+
+  public function importForm()
+  {
+    $data = [
+      'title' => 'Import Topic'
+    ];
+
+    return view('/admin/content/form/import_topic', $data);
   }
 
   public function insert()
@@ -113,5 +123,33 @@ class TopicController extends BaseController
     } else {
       return redirect()->to('/admin/tables/topics')->with('error', 'Gagal menghapus data Topic.');
     }
+  }
+
+  public function processImport()
+  {
+    $rules = ['excel_file' => 'uploaded[excel_file]|max_size[excel_file,5120]|ext_in[excel_file,xlsx,xls]'];
+    if (!$this->validate($rules)) {
+      return redirect()->to('/admin/tables/topics')->with('error', $this->validator->getErrors());
+    }
+
+    $file = $this->request->getFile('excel_file');
+    $spreadsheet = IOFactory::load($file->getTempName());
+    $rows = $spreadsheet->getActiveSheet()->toArray();
+
+    $dataToInsert = [];
+    foreach (array_slice($rows, 1) as $row) {
+      if (!empty(trim($row[0] ?? ''))) {
+        $dataToInsert[] = ['name' => trim($row[0])];
+      }
+    }
+
+    if (empty($dataToInsert)) {
+      return redirect()->to('/admin/tables/topics')->with('error', 'Tidak ada data valid untuk diimpor.');
+    }
+
+    $this->topicModel->ignore(true)->insertBatch($dataToInsert);
+
+    $count = $this->topicModel->db->affectedRows();
+    return redirect()->to('/admin/tables/topics')->with('success', "{$count} data Topic baru berhasil diimpor.");
   }
 }

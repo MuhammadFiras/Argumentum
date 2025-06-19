@@ -11,6 +11,7 @@
   <div class="card-body">
     <div class="my-2">
       <form action="<?= site_url('/admin/form/topics-insert'); ?>" method="post" class="row g-3 mb-2">
+        <?= csrf_field(); ?>
         <div class="col-auto">
           <label for="newTopic" class="col-form-label">Topik Baru</label>
         </div>

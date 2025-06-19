@@ -19,9 +19,14 @@
       <i class="fas fa-table me-1"></i>
       Topics Table
     </span>
-    <a href="<?= site_url('/admin/form/add-topics') ?>" class="btn btn-primary btn-sm">
-      <i class="fas fa-plus"></i> Tambah Data
-    </a>
+    <div>
+      <a href="<?= site_url('/admin/form/import-topics'); ?>" class="btn btn-success btn-sm">
+        <i class="fas fa-file-import"></i> Import Excel
+      </a>
+      <a href="<?= site_url('/admin/form/add-topics') ?>" class="btn btn-primary btn-sm">
+        <i class="fas fa-plus"></i> Tambah Data
+      </a>
+    </div>
   </div>
 
   <div class="card-body">
