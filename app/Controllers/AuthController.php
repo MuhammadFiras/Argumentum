@@ -52,7 +52,7 @@ class AuthController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $email = $this->request->getPost('email');
+        $email = $this->request->getPost('email', FILTER_SANITIZE_EMAIL);
         $password = $this->request->getPost('password');
 
         $user = $this->userModel->getUserByEmail($email);
@@ -157,12 +157,19 @@ class AuthController extends BaseController
             }
         }
 
+        $namaLengkap = $this->request->getPost('nama_lengkap');
+        $email = $this->request->getPost('email');
+
+        $sanitizedNamaLengkap = strip_tags($namaLengkap);
+        $sanitizedEmail = strip_tags($email);
+        $sanitizedPhotoProfile = strip_tags($photoProfileName);
+
         $userData = [
-            'nama_lengkap' => $this->request->getPost('nama_lengkap'),
-            'email' => $this->request->getPost('email'),
+            'nama_lengkap' => $sanitizedNamaLengkap,
+            'email' => $sanitizedEmail,
             'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
             'role' => 'user',
-            'photo_profile' => $photoProfileName
+            'photo_profile' => $sanitizedPhotoProfile
         ];
 
         if ($this->userModel->insert($userData)) {

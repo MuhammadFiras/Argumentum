@@ -59,12 +59,12 @@
                 <a class="nav-link" href="<?= site_url('/'); ?>">Home</a>
                 <a class="nav-link" href="<?= site_url('/login'); ?>">Login</a>
                 <a class="nav-link" href="<?= site_url('/register'); ?>">Register</a>
-                <a class="nav-link" href="<?= site_url('/question/mengapa-bumi-itu-bulat'); ?>">View Question</a>
+                <a class="nav-link" href="<?= site_url('/question/apa-yang-bisa-dikembangkan-dari-website-ini'); ?>">View Question</a>
                 <a class="nav-link" href="<?= site_url('/ask'); ?>">Ask Question</a>
-                <a class="nav-link" href="<?= site_url('/questions/edit/14'); ?>">Edit Question</a>
+                <a class="nav-link" href="<?= site_url('/questions/edit/7'); ?>">Edit Question</a>
                 <a class="nav-link" href="<?= site_url('/profile'); ?>">View Profile</a>
                 <a class="nav-link" href="<?= site_url('/profile/edit'); ?>">Edit Profile</a>
-                <a class="nav-link" href="<?= site_url('/answer/edit/13'); ?>">Edit Answer</a>
+                <a class="nav-link" href="<?= site_url('/answer/edit/22'); ?>">Edit Answer</a>
               </nav>
             </div>
 

@@ -46,10 +46,16 @@ class AnswerController extends BaseController
                 ->with('validation_answer', $this->validator);
         }
 
+        $config = \HTMLPurifier_Config::createDefault();
+        $purifier = new \HTMLPurifier($config);
+
+        $answerContent = $this->request->getPost('answer_content');
+        $sanitizedAnswerContent = $purifier->purify($answerContent);
+
         $data = [
             'id_question' => $id_question,
             'id_user'     => session()->get('user_id'),
-            'content'     => $this->request->getPost('answer_content')
+            'content'     => $sanitizedAnswerContent
         ];
 
         if ($this->answerModel->insert($data)) {
@@ -65,7 +71,7 @@ class AnswerController extends BaseController
             return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'Anda harus login untuk memberi rating.']);
         }
 
-        $ratingValue = $this->request->getPost('rating');
+        $ratingValue = $this->request->getPost('rating', FILTER_SANITIZE_NUMBER_INT);
         $userId = session()->get('user_id');
 
         if (empty($ratingValue) || !is_numeric($ratingValue) || $ratingValue < 1 || $ratingValue > 5) {
@@ -185,8 +191,14 @@ class AnswerController extends BaseController
             return redirect()->to('answer/edit/' . $id_answer)->withInput()->with('validation', $this->validator);
         }
 
+        $config = \HTMLPurifier_Config::createDefault();
+        $purifier = new \HTMLPurifier($config);
+
+        $answerContent = $this->request->getPost('answer_content');
+        $sanitizedAnswerContent = $purifier->purify($answerContent);
+
         $updateData = [
-            'content' => $this->request->getPost('answer_content')
+            'content' => $sanitizedAnswerContent
         ];
 
         $question = $this->questionModel->find($answer['id_question']);

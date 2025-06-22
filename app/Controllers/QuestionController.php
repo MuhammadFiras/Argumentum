@@ -107,7 +107,16 @@ class QuestionController extends BaseController
         $db = \Config\Database::connect();
         $db->transStart();
 
-        $slug = url_title($this->request->getPost('title'), '-', true);
+        $config = \HTMLPurifier_Config::createDefault();
+        $purifier = new \HTMLPurifier($config);
+
+        $title = $this->request->getPost('title');
+        $content = $this->request->getPost('content');
+
+        $sanitizedTitle = $purifier->purify($title);
+        $sanitizedContent = $purifier->purify($content);
+
+        $slug = url_title($sanitizedTitle, '-', true);
         $originalSlug = $slug;
         $counter = 1;
         while ($this->questionModel->findBySlug($slug)) {
@@ -117,8 +126,8 @@ class QuestionController extends BaseController
 
         $questionData = [
             'id_user' => session()->get('user_id'),
-            'title'   => $this->request->getPost('title'),
-            'content' => $this->request->getPost('content'),
+            'title'   => $sanitizedTitle,
+            'content' => $sanitizedContent,
             'slug'    => $slug
         ];
         $this->questionModel->insert($questionData);
@@ -126,9 +135,17 @@ class QuestionController extends BaseController
         $questionId = $this->questionModel->getInsertID();
 
         $topicIds = $this->request->getPost('topics');
-        if (!empty($topicIds)) {
-            $questionTopicData = [];
+
+        $sanitizedTopicIds = [];
+        if (is_array($topicIds)) {
             foreach ($topicIds as $topicId) {
+                $sanitizedTopicIds[] = filter_var($topicId, FILTER_SANITIZE_NUMBER_INT);
+            }
+        }
+
+        if (!empty($sanitizedTopicIds)) {
+            $questionTopicData = [];
+            foreach ($sanitizedTopicIds as $topicId) {
                 $questionTopicData[] = [
                     'question_id' => $questionId,
                     'topic_id'    => $topicId
@@ -211,11 +228,19 @@ class QuestionController extends BaseController
         $db = \Config\Database::connect();
         $db->transStart();
 
+        $config = \HTMLPurifier_Config::createDefault();
+        $purifier = new \HTMLPurifier($config);
+
         $newTitle = $this->request->getPost('title');
+        $newContent = $this->request->getPost('content');
+
+        $sanitizedNewTitle = $purifier->purify($newTitle);
+        $sanitizedNewContent = $purifier->purify($newContent);
+
         $newSlug = $question['slug'];
 
-        if ($newTitle != $question['title']) {
-            $newSlug = url_title($newTitle, '-', true);
+        if ($sanitizedNewTitle != $question['title']) {
+            $newSlug = url_title($sanitizedNewTitle, '-', true);
             $originalSlug = $newSlug;
             $counter = 1;
             $existingQuestionWithSlug = $this->questionModel->where('slug', $newSlug)->where('id_question !=', $id_question)->first();
@@ -227,8 +252,8 @@ class QuestionController extends BaseController
         }
 
         $updateData = [
-            'title'   => $newTitle,
-            'content' => $this->request->getPost('content'),
+            'title'   => $sanitizedNewTitle,
+            'content' => $sanitizedNewContent,
             'slug'    => $newSlug
         ];
 
@@ -237,9 +262,17 @@ class QuestionController extends BaseController
         $this->questionTopicModel->where('question_id', $id_question)->delete();
 
         $topicIds = $this->request->getPost('topics');
-        if (!empty($topicIds)) {
-            $questionTopicData = [];
+
+        $sanitizedTopicIds = [];
+        if (is_array($topicIds)) {
             foreach ($topicIds as $topicId) {
+                $sanitizedTopicIds[] = filter_var($topicId, FILTER_SANITIZE_NUMBER_INT);
+            }
+        }
+
+        if (!empty($sanitizedTopicIds)) {
+            $questionTopicData = [];
+            foreach ($sanitizedTopicIds as $topicId) {
                 $questionTopicData[] = [
                     'question_id' => $id_question,
                     'topic_id'    => $topicId

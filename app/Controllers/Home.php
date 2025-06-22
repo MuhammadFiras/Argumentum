@@ -22,7 +22,7 @@ class Home extends BaseController
 
     public function index(): string
     {
-        $topicId = $this->request->getGet('topic_id');
+        $topicId = $this->request->getGet('topic_id', FILTER_SANITIZE_NUMBER_INT);
 
         if (empty($topicId)) {
             $topicId = null;

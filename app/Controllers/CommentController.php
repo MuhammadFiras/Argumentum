@@ -40,10 +40,16 @@ class CommentController extends BaseController
             ]);
         }
 
+        $config = \HTMLPurifier_Config::createDefault();
+        $purifier = new \HTMLPurifier($config);
+
+        $commentText = $this->request->getPost('comment_text');
+        $sanitizedCommentText = $purifier->purify($commentText);
+
         $data = [
             'id_answer'    => $id_answer,
             'id_user'      => session()->get('user_id'),
-            'comment_text' => $this->request->getPost('comment_text')
+            'comment_text' => $sanitizedCommentText
         ];
 
         if ($this->commentModel->insert($data)) {
@@ -93,14 +99,19 @@ class CommentController extends BaseController
             return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'Anda tidak memiliki izin untuk mengedit komentar ini.']);
         }
 
+        $config = \HTMLPurifier_Config::createDefault();
+        $purifier = new \HTMLPurifier($config);
+
         $newText = $this->request->getPost('comment_text');
-        $data = ['comment_text' => $newText];
+        $sanitizedNewText = $purifier->purify($newText);
+
+        $data = ['comment_text' => $sanitizedNewText];
 
         if ($this->commentModel->update($id_comment, $data)) {
             return $this->response->setJSON([
                 'success' => true,
                 'message' => 'Komentar berhasil diperbarui.',
-                'updated_text' => esc($newText)
+                'updated_text' => esc($sanitizedNewText)
             ]);
         } else {
             return $this->response->setStatusCode(500)->setJSON(['success' => false, 'message' => 'Gagal memperbarui komentar.']);

@@ -85,7 +85,10 @@ class ProfileController extends BaseController
         $userId = session()->get('user_id');
         $user = $this->userModel->find($userId);
 
-        if ($user['nama_lengkap'] == $this->request->getVar('nama_lengkap')) {
+        $namaLengkap = $this->request->getVar('nama_lengkap');
+        $sanitizedNamaLengkap = strip_tags($namaLengkap);
+
+        if ($user['nama_lengkap'] == $sanitizedNamaLengkap) {
             $ruleNamaLengkap = 'required|min_length[3]|max_length[100]';
         } else {
             $ruleNamaLengkap = 'required|min_length[3]|max_length[100]|is_unique[users.nama_lengkap]';
@@ -159,13 +162,26 @@ class ProfileController extends BaseController
             }
         }
 
+        $namaLengkap = $this->request->getPost('nama_lengkap');
+        $description = $this->request->getPost('description');
+        $credentials = $this->request->getPost('credentials');
+        $linkedinUrl = $this->request->getPost('linkedin_url');
+        $instagramUrl = $this->request->getPost('instagram_url');
+
+        $sanitizedNamaLengkap = strip_tags($namaLengkap);
+        $sanitizedDescription = strip_tags($description);
+        $sanitizedCredentials = strip_tags($credentials);
+        $sanitizedLinkedinUrl = filter_var($linkedinUrl, FILTER_SANITIZE_URL);
+        $sanitizedInstagramUrl = filter_var($instagramUrl, FILTER_SANITIZE_URL);
+        $sanitizedPhotoProfile = strip_tags($photoProfileName);
+
         $updateData = [
-            'nama_lengkap'  => $this->request->getPost('nama_lengkap'),
-            'description'   => $this->request->getPost('description'),
-            'credentials'   => $this->request->getPost('credentials'),
-            'linkedin_url'  => $this->request->getPost('linkedin_url'),
-            'instagram_url' => $this->request->getPost('instagram_url'),
-            'photo_profile' => $photoProfileName
+            'nama_lengkap'  => $sanitizedNamaLengkap,
+            'description'   => $sanitizedDescription,
+            'credentials'   => $sanitizedCredentials,
+            'linkedin_url'  => $sanitizedLinkedinUrl,
+            'instagram_url' => $sanitizedInstagramUrl,
+            'photo_profile' => $sanitizedPhotoProfile
         ];
 
         if ($this->userModel->update($userId, $updateData)) {

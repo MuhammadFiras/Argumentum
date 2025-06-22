@@ -65,8 +65,11 @@ class TopicController extends BaseController
       return redirect()->to('/admin/form/add-topics')->withInput()->with('validation', $this->validator);
     }
 
+    $newTopicInput = $this->request->getPost('newTopic');
+    $sanitizedNewTopic = strip_tags($newTopicInput);
+
     $newTopic = [
-      'name' => $this->request->getPost('newTopic')
+      'name' => $sanitizedNewTopic
     ];
 
     if ($this->topicModel->insert($newTopic)) {
@@ -84,7 +87,10 @@ class TopicController extends BaseController
       throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Topic dengan ID tersebut tidak ditemukan.');
     }
 
-    if ($currentTopic['name'] === $this->request->getPost('newTopic')) {
+    $newTopicInput = $this->request->getPost('newTopic');
+    $sanitizedNewTopic = strip_tags($newTopicInput);
+
+    if ($currentTopic['name'] === $sanitizedNewTopic) {
       $newTopicRules = 'required|max_length[30]';
     } else {
       $newTopicRules = 'required|max_length[30]|is_unique[topics.name]';
@@ -105,8 +111,11 @@ class TopicController extends BaseController
       return redirect()->to('/admin/form/edit-topics/' . $currentTopic['id'])->withInput()->with('validation', $this->validator);
     }
 
+    $newTopicInput = $this->request->getPost('newTopic');
+    $sanitizedNewTopic = strip_tags($newTopicInput);
+
     $newTopic = [
-      'name' => $this->request->getPost('newTopic')
+      'name' => $sanitizedNewTopic
     ];
 
     if ($this->topicModel->update($topicId, $newTopic)) {
